@@ -1,0 +1,212 @@
+#!/usr/bin/env bash
+# Basic script to manage settings
+# Stefan Poll (s.poll@fz-juelich.de)
+set -e
+
+###########################################
+###
+# Settings
+###
+
+npnode=48
+ico_node=20
+clm_node=5
+pfl_node=4 #4
+
+cpl_frq=1800
+
+partition=batch
+account=slts
+wallclock=00:15:00 #04:00:00 # needs to be format hh:mm:ss
+
+MODEL_ID=ICON
+tsmp2_dir=$TSMP2_DIR
+tsmp2_install_dir=${tsmp2_dir}/run/${SYSTEMNAME^^}_${MODEL_ID}
+tsmp2_env=$TSMP2_DIR/env/jsc.2022_Intel.sh
+
+simlength="1 day"
+startdate="2015-01-01T00:00Z" # ISO norm 8601
+
+###########################################
+###
+# Start of script
+###
+
+# calculate needed variables
+ico_proc=$(($ico_node*$npnode))
+clm_proc=$(($clm_node*$npnode))
+pfl_proc=$(($pfl_node*$npnode))
+pfl_procY=12
+pfl_procX=$(($pfl_proc/$pfl_procY))
+
+modelid=$(echo ${MODEL_ID//"-"/} | tr '[:upper:]' '[:lower:]')
+
+datep1=$(date -u -d -I "+${startdate} + ${simlength}")
+simlensec=$(( $(date -u -d "${datep1}" +%s)-$(date -u -d "${startdate}" +%s) ))
+simlenhr=$(($simlensec/3600 | bc -l))
+dateymd=$(date -u -d "${startdate}" +%Y%m%d)
+#datedir=$(date -u -d "${startdate}" +%Y%m%d%H)
+
+###
+# Start replacing variables
+###
+
+####################
+# General
+####################
+
+# set path
+ctl_dir=$(pwd)
+run_dir=$(realpath ${ctl_dir}/../run/${dateymd}/)
+nml_dir=$(realpath ${ctl_dir}/namelist/)
+geo_dir=$(realpath ${ctl_dir}/../geo/)
+
+# 
+mkdir -pv $run_dir
+
+# copy blueprints (changes need to be done in the "*sed*" files)
+cp ${ctl_dir}/jobscripts/slm_multiprog_mapping_sed.conf ${run_dir}/slm_multiprog_mapping.conf
+cp ${ctl_dir}/jobscripts/${modelid}.job.jsc_sed ${run_dir}/tsmp2.job.jsc
+
+# slm_multiprog
+if [[ "${modelid}" != *icon* ]]; then
+   sed -i "/__icon_pe__/d" ${run_dir}/slm_multiprog_mapping.conf
+   ico_node=0
+   ico_proc=0
+fi
+if [[ "${modelid}" != *eclm* ]]; then
+   sed -i "/__clm_pe__/d" ${run_dir}/slm_multiprog_mapping.conf
+   clm_node=0
+   clm_proc=0
+fi
+if [[ "${modelid}" != *parflow* ]]; then
+   sed -i "/__pfl_pe__/d" ${run_dir}/slm_multiprog_mapping.conf
+   pfl_node=0
+   pfl_proc=0
+fi
+sed -i "s/__icon_pe__/$(($ico_proc-1))/" ${run_dir}/slm_multiprog_mapping.conf
+sed -i "s/__clm_ps__/$(($ico_proc))/" ${run_dir}/slm_multiprog_mapping.conf
+sed -i "s/__clm_pe__/$(($ico_proc+$clm_proc-1))/" ${run_dir}/slm_multiprog_mapping.conf
+sed -i "s/__pfl_ps__/$(($ico_proc+$clm_proc))/" ${run_dir}/slm_multiprog_mapping.conf
+sed -i "s/__pfl_pe__/$(($ico_proc+$clm_proc+$pfl_proc-1))/" ${run_dir}/slm_multiprog_mapping.conf
+
+# jobscript
+sed -i "s#__wallclock__#$wallclock#" ${run_dir}/tsmp2.job.jsc
+sed -i "s#__loadenvs__#$tsmp2_env#" ${run_dir}/tsmp2.job.jsc
+sed -i "s/__ntot_proc__/$(($ico_proc+$clm_proc+$pfl_proc))/" ${run_dir}/tsmp2.job.jsc
+sed -i "s/__ntot_node__/$(($ico_node+$clm_node+$pfl_node))/" ${run_dir}/tsmp2.job.jsc
+sed -i "s#__run_dir__#$run_dir#" ${run_dir}/tsmp2.job.jsc
+sed -i "s/__partition__/$partition/" ${run_dir}/tsmp2.job.jsc
+sed -i "s/__account__/$account/" ${run_dir}/tsmp2.job.jsc
+sed -i "s/__npnode__/$npnode/" ${run_dir}/tsmp2.job.jsc
+sed -i "s#__parflow_bin__#$tsmp2_install_dir#" ${run_dir}/tsmp2.job.jsc
+
+# change to run directory
+cd ${run_dir}
+
+####################
+# ICON
+####################
+if [[ "${modelid}" == *icon* ]]; then
+
+# link executeable
+  ln -sf $tsmp2_install_dir/bin/icon icon
+#  ln -sf /p/project/cslts/poll1/eclm_coupling/icon-2.6.4_branch/bin-juwels-sta/icon icon
+
+# copy namelist
+  cp ${nml_dir}/icon/NAMELIST_icon NAMELIST_icon
+  cp ${nml_dir}/icon/icon_master.namelist icon_master.namelist
+  cp ${nml_dir}/icon/dict.latbc dict.latbc
+
+# ICON NML
+#  sed -i "s#__forcdir__#$ctl_dir/../pre/201707#" NAMELIST_icon
+  sed -i "s#__forcdir__#/p/scratch/cslts/poll1/tmp_data/r13b07/forcing/2015_01#" NAMELIST_icon
+  sed -i "s/__dateymd__/${dateymd}/" NAMELIST_icon
+  sed -i "s/__outdatestart__/$(date -u -d "${startdate}" +%Y-%m-%dT%H:%M:%SZ)/" NAMELIST_icon
+  sed -i "s/__outdateend__/$(date -u -d "${datep1}" +%Y-%m-%dT%H:%M:%SZ)/" NAMELIST_icon
+  sed -i "s/__simstart__/$(date -u -d "${startdate}" +%Y-%m-%dT%H:%M:%SZ)/" icon_master.namelist
+  sed -i "s/__simend__/$(date -u -d "${datep1}" +%Y-%m-%dT%H:%M:%SZ)/" icon_master.namelist
+
+# link needed files
+  ln -sf ${geo_dir}/static/icon/EUR-R13B07_2473796_grid_inclbrz_v1.nc EUR-R13B07_2473796_grid_inclbrz_v1.nc
+  ln -sf ${geo_dir}/static/icon/external_parameter_icon_EUR-R13B07_2473796_grid_inclbrz_v1.nc external_parameter_icon_EUR-R13B07_2473796_grid_inclbrz_v1.nc
+  ln -sf ${geo_dir}/static/icon/bc_greenhouse_rcp45_1765-2500.nc bc_greenhouse_rcp45_1765-2500.nc
+
+fi # if modelid == ICON
+
+####################
+# CLM
+####################
+if [[ "${modelid}" == *clm* ]]; then
+
+# link executeable
+  ln -sf $tsmp2_install_dir/bin/eclm.exe eclm
+
+# copy namelist
+  cp ${nml_dir}/eclm/drv_in drv_in
+  cp ${nml_dir}/eclm/lnd_in lnd_in
+  cp ${nml_dir}/eclm/datm_in datm_in
+  cp ${nml_dir}/eclm/drv_flds_in drv_flds_in
+  cp ${nml_dir}t/eclm/mosart_in mosart_in
+
+# CLM NML
+  sed -i "s/__nclm_proc__/$(($clm_proc))/" drv_in
+  sed -i "s/__cplfrq__/$cpl_frq/" drv_in
+  sed -i "s/__cplfrq__/$cpl_frq/" lnd_in
+  sed -i "s#__run_dir__#$run_dir#" lnd_in
+  if [[ "${modelid}" != *parflow* ]]; then
+    sed -i "s/__swmm__/1/" lnd_in # soilwater_movement_method
+    sed -i "s/__clmoutvar__/'TLAI', 'FIRA', 'FIRE', 'ALBD', 'ALBI', 'TSA', 'TV', 'TG', 'TSKIN', 'TSOI','FSH','EFLX_LH_TOT'/" lnd_in
+  else
+    sed -i "s/__swmm__/4/" lnd_in # soilwater_movement_method
+    sed -i "s/__clmoutvar__/'PFL_PSI', 'PFL_PSI_GRC', 'PFL_SOILLIQ', 'PFL_SOILLIQ_GRC', 'RAIN', 'SNOW', 'SOILPSI', 'SMP', 'QPARFLOW', 'FH2OSFC', 'FH2OSFC_NOSNOW', 'FRAC_ICEOLD', 'FSAT', 'H2OCAN', 'H2OSFC', 'H2OSNO', 'H2OSNO_ICE', 'H2OSOI', 'LIQCAN', 'LIQUID_WATER_TEMP1', 'OFFSET_SWI', 'ONSET_SWI', 'QH2OSFC', 'QH2OSFC_TO_ICE', 'QROOTSINK', 'QTOPSOIL', 'SNOLIQFL', 'SNOWLIQ', 'SNOWLIQ_ICE', 'SNOW_SINKS', 'SNOW_SOURCES', 'SNO_BW', 'SNO_BW_ICE', 'SNO_LIQH2O', 'SOILLIQ', 'SOILPSI', 'SOILWATER_10CM', 'TH2OSFC', 'TOTSOILLIQ', 'TWS', 'VEGWP', 'VOLR', 'VOLRMCH', 'WF', 'ZWT', 'ZWT_CH4_UNSAT', 'ZWT_PERCH', 'watfc', 'watsat', 'QINFL', 'Qstor', 'QOVER', 'QRUNOFF', 'EFF_POROSITY', 'TSOI', 'TSKIN', 'QDRAI'/" lnd_in
+  fi
+  sed -i "s#__run_dir__#$run_dir#" datm_in
+  sed -i "s#__run_dir__#$run_dir#" drv_flds_in
+  sed -i "s#__run_dir__#$run_dir#" mosart_in
+fi # if modelid == CLM
+
+####################
+# PFL
+####################
+if [[ "${modelid}" == *parflow* ]]; then
+
+# link executeable
+  ln -sf $tsmp2_install_dir/bin/parflow parflow
+
+# copy namelist
+  cp ${nml_dir}/parflow/ascii2pfb_slopes.tcl ascii2pfb_slopes.tcl
+  cp ${nml_dir}/parflow/ascii2pfb_SoilInd.tcl ascii2pfb_SoilInd.tcl
+  cp ${nml_dir}/parflow/coup_oas.tcl coup_oas.tcl
+
+# PFL NML
+  sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" coup_oas.tcl
+  sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" coup_oas.tcl
+  sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" ascii2pfb_slopes.tcl
+  sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" ascii2pfb_slopes.tcl
+  sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" ascii2pfb_SoilInd.tcl
+  sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" ascii2pfb_SoilInd.tcl
+
+fi # if modelid == parflow
+
+####################
+# OASIS
+####################
+
+if [[ "${modelid}" == *-* ]]; then
+
+# OAS NML
+  sed -i "s/__cplfrq__/$cpl_frq/" namcouple
+
+fi # if modelid == oasis
+
+echo "Configured case."
+
+###########################################
+###
+# Submit job
+###
+
+#sbatch tsmp2.job.jsc
+
+#echo "Submitted job"
