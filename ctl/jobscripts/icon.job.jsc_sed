@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#SBATCH --job-name=tsmp2-icon
+#SBATCH --nodes=__ntot_node__
+#SBATCH --ntasks=__ntot_proc__
+#SBATCH --ntasks-per-node=__npnode__
+#SBATCH --account=__account__
+#SBATCH --partition=__partition__
+#SBATCH --time=__wallclock__
+#SBATCH --output=%j.icon.out
+#SBATCH --error=%j.icon.err
+
+# source
+source __loadenvs__
+
+# Run model
+TIME_START=$(date +%s)
+echo ">>> iconeclm started at $(date +%H:%M:%S)"
+srun --multi-prog slm_multiprog_mapping.conf
+TIME_END=$(date +%s)
+echo ">>> iconeclm finished at $(date +%H:%M:%S)"
+echo ">>> iconeclm runtime: $(date -u -d "0 $TIME_END sec - $TIME_START sec" +"%H:%M:%S")"

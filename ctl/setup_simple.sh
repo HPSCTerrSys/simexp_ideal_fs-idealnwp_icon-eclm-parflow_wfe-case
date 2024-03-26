@@ -17,7 +17,7 @@ cpl_frq=1800
 
 partition=batch
 account=slts
-wallclock=00:15:00 #04:00:00 # needs to be format hh:mm:ss
+wallclock=04:00:00 # needs to be format hh:mm:ss
 
 MODEL_ID=ICON
 tsmp2_dir=$TSMP2_DIR
@@ -60,9 +60,11 @@ ctl_dir=$(pwd)
 run_dir=$(realpath ${ctl_dir}/../run/${dateymd}/)
 nml_dir=$(realpath ${ctl_dir}/namelist/)
 geo_dir=$(realpath ${ctl_dir}/../geo/)
+pre_dir=$(realpath ${ctl_dir}/../pre/)
 
-# 
+# create and clean-up run-dir 
 mkdir -pv $run_dir
+rm $run_dir/*
 
 # copy blueprints (changes need to be done in the "*sed*" files)
 cp ${ctl_dir}/jobscripts/slm_multiprog_mapping_sed.conf ${run_dir}/slm_multiprog_mapping.conf
@@ -111,7 +113,6 @@ if [[ "${modelid}" == *icon* ]]; then
 
 # link executeable
   ln -sf $tsmp2_install_dir/bin/icon icon
-#  ln -sf /p/project/cslts/poll1/eclm_coupling/icon-2.6.4_branch/bin-juwels-sta/icon icon
 
 # copy namelist
   cp ${nml_dir}/icon/NAMELIST_icon NAMELIST_icon
@@ -119,8 +120,8 @@ if [[ "${modelid}" == *icon* ]]; then
   cp ${nml_dir}/icon/dict.latbc dict.latbc
 
 # ICON NML
-#  sed -i "s#__forcdir__#$ctl_dir/../pre/201707#" NAMELIST_icon
-  sed -i "s#__forcdir__#/p/scratch/cslts/poll1/tmp_data/r13b07/forcing/2015_01#" NAMELIST_icon
+  sed -i "s#__forcdir__#${pre_dir}/icon/$(date -u -d "${startdate}" +%Y_%m)#" NAMELIST_icon
+  sed -i "s#__ecraddata_dir__#/p/scratch/cslts/poll1/ecraddata#" NAMELIST_icon # needs to be short path in ICON v2.6.4
   sed -i "s/__dateymd__/${dateymd}/" NAMELIST_icon
   sed -i "s/__outdatestart__/$(date -u -d "${startdate}" +%Y-%m-%dT%H:%M:%SZ)/" NAMELIST_icon
   sed -i "s/__outdateend__/$(date -u -d "${datep1}" +%Y-%m-%dT%H:%M:%SZ)/" NAMELIST_icon
