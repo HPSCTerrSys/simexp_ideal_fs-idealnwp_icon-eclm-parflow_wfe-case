@@ -17,10 +17,11 @@ The TSMP2 ( https://github.com/HPSCTerrSys/TSMP2 ) should be already compiled (s
 
 The `TSMP2_DIR` variable needs to be set to the directory of TSMP2. 
 
-Create and link run-directory on SCRATCH 
+Create and softlink run-directory on SCRATCH
 ``` bash
-mkdir -pv /p/scratch/YOUR_PROJECT/$USER/eur-0275_iconv2.6.4-eclm-parflowv3.12_wfe-case/run
-ln -s /p/scratch/YOUR_PROJECT/$USER/eur-0275_iconv2.6.4-eclm-parflowv3.12_wfe-case/run run
+export SCRATCH_DIR=/p/scratch/YOUR_PROJECT/$USER/eur-0275_iconv2.6.4-eclm-parflowv3.12_wfe-case
+mkdir -pv $SCRATCH_DIR
+ln -s $SCRATCH_DIR/run run
 ```
 
 Adapt ressources and time in the setup-script. 
