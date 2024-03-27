@@ -17,9 +17,9 @@ cpl_frq=1800
 
 partition=batch
 account=slts
-wallclock=04:00:00 # needs to be format hh:mm:ss
+wallclock=00:20:00 #04:00:00 # needs to be format hh:mm:ss
 
-MODEL_ID=ICON
+MODEL_ID=eCLM #ICON
 tsmp2_dir=$TSMP2_DIR
 tsmp2_install_dir=${tsmp2_dir}/run/${SYSTEMNAME^^}_${MODEL_ID}
 tsmp2_env=$TSMP2_DIR/env/jsc.2022_Intel.sh
@@ -57,14 +57,14 @@ dateymd=$(date -u -d "${startdate}" +%Y%m%d)
 
 # set path
 ctl_dir=$(pwd)
-run_dir=$(realpath ${ctl_dir}/../run/${dateymd}/)
+run_dir=$(realpath ${ctl_dir}/../run/${modelid}_${dateymd}/)
 nml_dir=$(realpath ${ctl_dir}/namelist/)
 geo_dir=$(realpath ${ctl_dir}/../geo/)
 pre_dir=$(realpath ${ctl_dir}/../pre/)
 
 # create and clean-up run-dir 
 mkdir -pv $run_dir
-rm $run_dir/*
+#rm -f $run_dir/* 
 
 # copy blueprints (changes need to be done in the "*sed*" files)
 cp ${ctl_dir}/jobscripts/slm_multiprog_mapping_sed.conf ${run_dir}/slm_multiprog_mapping.conf
@@ -111,7 +111,7 @@ cd ${run_dir}
 ####################
 if [[ "${modelid}" == *icon* ]]; then
 
-# link executeable
+# link executeable (will be replaced with copy in production)
   ln -sf $tsmp2_install_dir/bin/icon icon
 
 # copy namelist
@@ -140,6 +140,12 @@ fi # if modelid == ICON
 ####################
 if [[ "${modelid}" == *clm* ]]; then
 
+# 
+  geo_dir_clm=${geo_dir}/static/eclm/
+  clm_tsp=${cpl_frq}
+# 
+  fini_clm=${pre_dir}/eclm/CLM5EUR-0275_SP_ERA5_GLC2000_newmask_spinupv2.clm2.r.2015-01-01-00000.nc
+
 # link executeable
   ln -sf $tsmp2_install_dir/bin/eclm.exe eclm
 
@@ -148,23 +154,34 @@ if [[ "${modelid}" == *clm* ]]; then
   cp ${nml_dir}/eclm/lnd_in lnd_in
   cp ${nml_dir}/eclm/datm_in datm_in
   cp ${nml_dir}/eclm/drv_flds_in drv_flds_in
-  cp ${nml_dir}t/eclm/mosart_in mosart_in
+  cp ${nml_dir}/eclm/mosart_in mosart_in
+  cp ${nml_dir}/eclm/datm.streams.txt* .
+  cp ${nml_dir}/eclm/cime/* .
 
 # CLM NML
   sed -i "s/__nclm_proc__/$(($clm_proc))/" drv_in
-  sed -i "s/__cplfrq__/$cpl_frq/" drv_in
-  sed -i "s/__cplfrq__/$cpl_frq/" lnd_in
-  sed -i "s#__run_dir__#$run_dir#" lnd_in
+  sed -i "s/__clm_tsp__/$clm_tsp/" drv_in
+  sed -i "s/__clm_tsp2__/$(($clm_tsp*3 | bc -l))/" drv_in
+  sed -i "s/__simstart__/$(date -u -d "${startdate}" +%Y%m%d)/" drv_in
+  sed -i "s/__simend__/$(date -u -d "${datep1}" +%Y%m%d)/" drv_in
+  sed -i "s/__simrestart__/$(date -u -d "${datep1}" +%Y%m%d)/" drv_in
+  sed -i "s/__clm_tsp__/$clm_tsp/" lnd_in
+  sed -i "s#__fini_clm__#$fini_clm#" lnd_in
+  sed -i "s#__geo_dir_clm__#$geo_dir_clm#" lnd_in
   if [[ "${modelid}" != *parflow* ]]; then
     sed -i "s/__swmm__/1/" lnd_in # soilwater_movement_method
-    sed -i "s/__clmoutvar__/'TLAI', 'FIRA', 'FIRE', 'ALBD', 'ALBI', 'TSA', 'TV', 'TG', 'TSKIN', 'TSOI','FSH','EFLX_LH_TOT'/" lnd_in
+#    sed -i "s/__clmoutvar__/'TLAI', 'FIRA', 'FIRE', 'ALBD', 'ALBI', 'TSA', 'TV', 'TG', 'TSKIN', 'TSOI','FSH','EFLX_LH_TOT'/" lnd_in
+    sed -i "s/__clmoutvar__/'TWS','H2OSOI','QFLX_EVAP_TOT','TG','TSOI','FSH','FSR'/" lnd_in
   else
     sed -i "s/__swmm__/4/" lnd_in # soilwater_movement_method
     sed -i "s/__clmoutvar__/'PFL_PSI', 'PFL_PSI_GRC', 'PFL_SOILLIQ', 'PFL_SOILLIQ_GRC', 'RAIN', 'SNOW', 'SOILPSI', 'SMP', 'QPARFLOW', 'FH2OSFC', 'FH2OSFC_NOSNOW', 'FRAC_ICEOLD', 'FSAT', 'H2OCAN', 'H2OSFC', 'H2OSNO', 'H2OSNO_ICE', 'H2OSOI', 'LIQCAN', 'LIQUID_WATER_TEMP1', 'OFFSET_SWI', 'ONSET_SWI', 'QH2OSFC', 'QH2OSFC_TO_ICE', 'QROOTSINK', 'QTOPSOIL', 'SNOLIQFL', 'SNOWLIQ', 'SNOWLIQ_ICE', 'SNOW_SINKS', 'SNOW_SOURCES', 'SNO_BW', 'SNO_BW_ICE', 'SNO_LIQH2O', 'SOILLIQ', 'SOILPSI', 'SOILWATER_10CM', 'TH2OSFC', 'TOTSOILLIQ', 'TWS', 'VEGWP', 'VOLR', 'VOLRMCH', 'WF', 'ZWT', 'ZWT_CH4_UNSAT', 'ZWT_PERCH', 'watfc', 'watsat', 'QINFL', 'Qstor', 'QOVER', 'QRUNOFF', 'EFF_POROSITY', 'TSOI', 'TSKIN', 'QDRAI'/" lnd_in
   fi
-  sed -i "s#__run_dir__#$run_dir#" datm_in
-  sed -i "s#__run_dir__#$run_dir#" drv_flds_in
-  sed -i "s#__run_dir__#$run_dir#" mosart_in
+  sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm_in
+  sed -i "s#__geo_dir_clm__#$geo_dir_clm#" drv_flds_in
+  sed -i "s#__geo_dir_clm__#$geo_dir_clm#" mosart_in
+  sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm.streams.txt*
+  # the forcing date in the data streams are not yet automatically adjusted
+  sed -i "s#__forcdir__#${pre_dir}/eclm/forcing/#" datm.streams.txt.CLMCRUNCEPv7.*
 fi # if modelid == CLM
 
 ####################

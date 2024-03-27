@@ -11,7 +11,10 @@ cd $PROJECT_DIR
 git clone --recurse-submodules https://icg4geo.icg.kfa-juelich.de/Configurations/tsmp2/eur-0275_iconv2.6.4-eclm-parflowv3.12_wfe-case
 ```
 
-The TSMP2 ( https://github.com/HPSCTerrSys/TSMP2 ) should be already compiled (see [ReadMe TSMP2](https://github.com/HPSCTerrSys/TSMP2/blob/master/README.md)). 
+The TSMP2 ( https://github.com/HPSCTerrSys/TSMP2 ) should be already compiled (see [ReadMe TSMP2](https://github.com/HPSCTerrSys/TSMP2/blob/master/README.md)).
+
+** DETECT - users **
+Please copy the git repository of the static fields from `/p/largedata2/detectdata/CentralDB/projects/z04/static_fields/TSMP_EUR-0275` and checkout the hash of the submodule. If the hash is not available, please contact `s.poll@fz-juelich.de`.
 
 ## Run case
 
