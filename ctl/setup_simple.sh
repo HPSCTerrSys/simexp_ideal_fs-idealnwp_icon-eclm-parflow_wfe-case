@@ -19,10 +19,14 @@ partition=batch
 account=slts
 wallclock=00:20:00 #04:00:00 # needs to be format hh:mm:ss
 
-MODEL_ID=eCLM #ICON
+MODEL_ID=ICON-eCLM #eCLM #ICON
+if [ -n "$TSMP2_DIR" ]; then
 tsmp2_dir=$TSMP2_DIR
+else
+tsmp2_dir=/p/project/cslts/$USER/TSMP2
+fi
 tsmp2_install_dir=${tsmp2_dir}/run/${SYSTEMNAME^^}_${MODEL_ID}
-tsmp2_env=$TSMP2_DIR/env/jsc.2022_Intel.sh
+tsmp2_env=$tsmp2_dir/env/jsc.2022_Intel.sh
 
 simlength="1 day"
 startdate="2015-01-01T00:00Z" # ISO norm 8601
@@ -63,6 +67,7 @@ geo_dir=$(realpath ${ctl_dir}/../geo/)
 pre_dir=$(realpath ${ctl_dir}/../pre/)
 
 # create and clean-up run-dir 
+echo "rundir can be found at: "$run_dir
 mkdir -pv $run_dir
 #rm -f $run_dir/* 
 
@@ -211,10 +216,21 @@ fi # if modelid == parflow
 # OASIS
 ####################
 
-if [[ "${modelid}" == *-* ]]; then
+if [[ "${MODEL_ID}" == *-* ]]; then
+
+# copy namelist
+  cp ${nml_dir}/oasis/namcouple_${modelid} namcouple
 
 # OAS NML
   sed -i "s/__cplfrq__/$cpl_frq/" namcouple
+  sed -i "s/__simlen__/$simlensec/" namcouple
+
+# copy remap-files
+  cp ${geo_dir}/static/oasis/masks.nc .
+  cp ${geo_dir}/static/oasis/grids.nc .
+  if [[ "${modelid}" == *icon* ]]; then
+    cp ${geo_dir}/static/oasis/rmp* .
+  fi
 
 fi # if modelid == oasis
 
