@@ -16,17 +16,13 @@ pfl_node=4 #4
 # user setting, leave empty for jsc machine defaults
 npnode_u="" # number of cores per node
 partition_u="" # compute partition
-account_u="" # SET compute account, by default slts is taken
+account_u=$BUDGET_ACCOUNTS # SET compute account. If not set, slts is taken
 wallclock=00:10:00 #04:00:00 # needs to be format hh:mm:ss
 
 MODEL_ID=ICON-eCLM #eCLM #ICON
-if [ -n "$TSMP2_DIR" ]; then
-tsmp2_dir=$TSMP2_DIR
-else
-tsmp2_dir=/p/project/cslts/$USER/TSMP2
-fi
-tsmp2_install_dir=${tsmp2_dir}/run/${SYSTEMNAME^^}_${MODEL_ID}
-tsmp2_env=$tsmp2_dir/env/jsc.2022_Intel.sh
+tsmp2_dir_u=$TSMP2_DIR
+tsmp2_install_dir_u="" # leave empty to take default
+tsmp2_env_u="" # leave empty to take default
 
 cpl_frq=1800
 simlength="1 day"
@@ -36,6 +32,22 @@ startdate="2015-01-01T00:00Z" # ISO norm 8601
 ###
 # Start of script
 ###
+
+modelid=$(echo ${MODEL_ID//"-"/} | tr '[:upper:]' '[:lower:]')
+
+datep1=$(date -u -d -I "+${startdate} + ${simlength}")
+simlensec=$(( $(date -u -d "${datep1}" +%s)-$(date -u -d "${startdate}" +%s) ))
+simlenhr=$(($simlensec/3600 | bc -l))
+dateymd=$(date -u -d "${startdate}" +%Y%m%d)
+#datedir=$(date -u -d "${startdate}" +%Y%m%d%H)
+
+# set path
+ctl_dir=$(pwd)
+run_dir=$(realpath ${ctl_dir}/../run/${modelid}_${dateymd}/)
+#run_dir=$(realpath ${ctl_dir}/../run/${SYSTEMNAME}_${modelid}_${dateymd}/)
+nml_dir=$(realpath ${ctl_dir}/namelist/)
+geo_dir=$(realpath ${ctl_dir}/../geo/)
+pre_dir=$(realpath ${ctl_dir}/../pre/)
 
 # select machine defaults, if not set by user
 if ( [ -z $npnode_u ] | [ -z $partition_u ] ); then
@@ -50,7 +62,7 @@ else
 echo "Machine '$SYSTEMNAME' is not recognized. Valid input juwels/jurecadc/jusuf."
 fi
 else
-echo "Take user setting for nonode and partition."
+echo "Take user setting for nonode $npnode and partition $partition."
 npnode=$npnode_u
 partition=$partition_u
 fi
@@ -62,20 +74,31 @@ else
 account=$account_u
 fi
 
+if [ -z "$tsmp2_dir_u" ]; then
+tsmp2_dir=$(realpath  ${ctl_dir}/../src/TSMP2)
+echo "Take TSMP2 default dir at $tsmp2_dir"
+else
+tsmp2_dir=$tsmp2_dir_u
+fi
+if [ -z "$tsmp2_install_dir_u" ]; then
+tsmp2_install_dir=${tsmp2_dir}/run/${SYSTEMNAME^^}_${MODEL_ID}
+echo "Take TSMP2 component binaries from default dir at $tsmp2_install_dir"
+else
+tsmp2_install_dir=$tsmp2_install_dir_u
+fi
+if [ -z "$tsmp2_env_u" ]; then
+tsmp2_env=$tsmp2_dir/env/jsc.2022_Intel.sh
+echo "Use enviromnent file $tsmp2_env"
+else
+tsmp2_env=$tsmp2_env_u
+fi
+
 # calculate needed variables
 ico_proc=$(($ico_node*$npnode))
 clm_proc=$(($clm_node*$npnode))
 pfl_proc=$(($pfl_node*$npnode))
 pfl_procY=12
 pfl_procX=$(($pfl_proc/$pfl_procY))
-
-modelid=$(echo ${MODEL_ID//"-"/} | tr '[:upper:]' '[:lower:]')
-
-datep1=$(date -u -d -I "+${startdate} + ${simlength}")
-simlensec=$(( $(date -u -d "${datep1}" +%s)-$(date -u -d "${startdate}" +%s) ))
-simlenhr=$(($simlensec/3600 | bc -l))
-dateymd=$(date -u -d "${startdate}" +%Y%m%d)
-#datedir=$(date -u -d "${startdate}" +%Y%m%d%H)
 
 ###
 # Start replacing variables
@@ -84,13 +107,6 @@ dateymd=$(date -u -d "${startdate}" +%Y%m%d)
 ####################
 # General
 ####################
-
-# set path
-ctl_dir=$(pwd)
-run_dir=$(realpath ${ctl_dir}/../run/${modelid}_${dateymd}/)
-nml_dir=$(realpath ${ctl_dir}/namelist/)
-geo_dir=$(realpath ${ctl_dir}/../geo/)
-pre_dir=$(realpath ${ctl_dir}/../pre/)
 
 # create and clean-up run-dir 
 echo "rundir can be found at: "$run_dir
