@@ -8,16 +8,16 @@ set -e
 # Settings
 ###
 
-npnode=48
+# number of nodes per component
 ico_node=20
 clm_node=5
 pfl_node=4 #4
 
-cpl_frq=1800
-
-partition=batch
-account=slts
-wallclock=00:20:00 #04:00:00 # needs to be format hh:mm:ss
+# user setting, leave empty for jsc machine defaults
+npnode_u="" # number of cores per node
+partition_u="" # compute partition
+account_u="" # SET compute account, by default slts is taken
+wallclock=00:10:00 #04:00:00 # needs to be format hh:mm:ss
 
 MODEL_ID=ICON-eCLM #eCLM #ICON
 if [ -n "$TSMP2_DIR" ]; then
@@ -28,6 +28,7 @@ fi
 tsmp2_install_dir=${tsmp2_dir}/run/${SYSTEMNAME^^}_${MODEL_ID}
 tsmp2_env=$tsmp2_dir/env/jsc.2022_Intel.sh
 
+cpl_frq=1800
 simlength="1 day"
 startdate="2015-01-01T00:00Z" # ISO norm 8601
 
@@ -35,6 +36,31 @@ startdate="2015-01-01T00:00Z" # ISO norm 8601
 ###
 # Start of script
 ###
+
+# select machine defaults, if not set by user
+if ( [ -z $npnode_u ] | [ -z $partition_u ] ); then
+echo "Take system default for npnode and partition. "
+if [ ${SYSTEMNAME^^} == "JUWELS" ];then
+npnode=48
+partition=batch
+elif [ ${SYSTEMNAME^^} == "JURECADC" ] || [ ${SYSTEMNAME^^} == "JUSUF" ];then
+npnode=128
+partition=dc-cpu
+else
+echo "Machine '$SYSTEMNAME' is not recognized. Valid input juwels/jurecadc/jusuf."
+fi
+else
+echo "Take user setting for nonode and partition."
+npnode=$npnode_u
+partition=$partition_u
+fi
+
+if [ -z $account_u ]; then
+echo "WARNING: No account is set. Take slts!"
+account=slts
+else
+account=$account_u
+fi
 
 # calculate needed variables
 ico_proc=$(($ico_node*$npnode))
