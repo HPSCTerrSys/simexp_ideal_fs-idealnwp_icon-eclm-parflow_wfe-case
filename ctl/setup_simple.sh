@@ -227,7 +227,7 @@ if [[ "${MODEL_ID}" == *-* ]]; then
 
 # copy remap-files
   cp ${geo_dir}/static/oasis/masks.nc .
-  cp ${geo_dir}/static/oasis/grids.nc .
+#  cp ${geo_dir}/static/oasis/grids.nc .
   if [[ "${modelid}" == *icon* ]]; then
     cp ${geo_dir}/static/oasis/rmp* .
   fi
