@@ -180,6 +180,16 @@ if [[ "${modelid}" == *clm* ]]; then
 # link executeable
   ln -sf $tsmp2_install_dir/bin/eclm.exe eclm
 
+# calculation for automated adjustment of clm forcing
+  forcedate=$(date '+%s' -d "${datep1} + 1 month - 1 day")
+  ldate="${startdate}"
+  forcdatelist=""
+  while [[ $(date +%s -d $ldate) -le $forcedate ]]; do
+    forcdatelist+=$(echo "${ldate%-*}.nc\n")
+    ldate=$(date '+%Y-%m-%d' -d "$ldate +1 month")
+  done
+  forcdatelist=${forcdatelist::-2} # delete last new line command
+
 # copy namelist
   cp ${nml_dir}/eclm/drv_in drv_in
   cp ${nml_dir}/eclm/lnd_in lnd_in
@@ -208,11 +218,14 @@ if [[ "${modelid}" == *clm* ]]; then
     sed -i "s/__clmoutvar__/'PFL_PSI', 'PFL_PSI_GRC', 'PFL_SOILLIQ', 'PFL_SOILLIQ_GRC', 'RAIN', 'SNOW', 'SOILPSI', 'SMP', 'QPARFLOW', 'FH2OSFC', 'FH2OSFC_NOSNOW', 'FRAC_ICEOLD', 'FSAT', 'H2OCAN', 'H2OSFC', 'H2OSNO', 'H2OSNO_ICE', 'H2OSOI', 'LIQCAN', 'LIQUID_WATER_TEMP1', 'OFFSET_SWI', 'ONSET_SWI', 'QH2OSFC', 'QH2OSFC_TO_ICE', 'QROOTSINK', 'QTOPSOIL', 'SNOLIQFL', 'SNOWLIQ', 'SNOWLIQ_ICE', 'SNOW_SINKS', 'SNOW_SOURCES', 'SNO_BW', 'SNO_BW_ICE', 'SNO_LIQH2O', 'SOILLIQ', 'SOILPSI', 'SOILWATER_10CM', 'TH2OSFC', 'TOTSOILLIQ', 'TWS', 'VEGWP', 'VOLR', 'VOLRMCH', 'WF', 'ZWT', 'ZWT_CH4_UNSAT', 'ZWT_PERCH', 'watfc', 'watsat', 'QINFL', 'Qstor', 'QOVER', 'QRUNOFF', 'EFF_POROSITY', 'TSOI', 'TSKIN', 'QDRAI'/" lnd_in
   fi
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm_in
+  sed -i "s/__simystart__/$(date -u -d "${startdate}" +%Y)/g" datm_in
+  sed -i "s/__simyend__/$(date -u -d "${startdate}" +%Y)/g" datm_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" drv_flds_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" mosart_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm.streams.txt*
-  # the forcing date in the data streams are not yet automatically adjusted
+  # forcing
   sed -i "s#__forcdir__#${pre_dir}/eclm/forcing/#" datm.streams.txt.CLMCRUNCEPv7.*
+  sed -i "s#__forclist__#${forcdatelist}#" datm.streams.txt.CLMCRUNCEPv7.*
 fi # if modelid == CLM
 
 ####################
