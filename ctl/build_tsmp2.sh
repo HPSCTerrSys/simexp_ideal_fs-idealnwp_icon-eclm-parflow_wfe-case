@@ -32,15 +32,27 @@ BUILD_LOG="$(dirname ${BUILD_DIR})/${MODEL_ID}_$(date +%Y.%m.%d_%H.%M).log"
 
 echo "Building ${MODEL_ID}"
 
+# Source code string
+CMAKE_COMPSRC=""
+if [[ "${MODEL_ID}" == *-* ]]; then
+  CMAKE_COMPSRC+="-DOASIS_SRC=${OASIS_SRC} "
+fi
+if [[ "${MODEL_ID}" == *ICON* ]]; then
+  CMAKE_COMPSRC+="-DICON_SRC=${ICON_SRC} "
+fi
+if [[ "${MODEL_ID}" == *eCLM* ]]; then
+  CMAKE_COMPSRC+="-DeCLM_SRC=${eCLM_SRC} "
+fi
+if [[ "${MODEL_ID}" == *ParFlow* ]]; then
+  CMAKE_COMPSRC+="-DPARFLOW_SRC=${PARFLOW_SRC} "
+fi
+
 # Configure
 rm -rf ${BUILD_DIR}
 mkdir -p ${BUILD_DIR} ${INSTALL_DIR}
 cmake -S ${TSMP2_DIR} -B ${BUILD_DIR}         \
       -DCMAKE_BUILD_TYPE=${BUILD_CONFIG}      \
-      -DOASIS_SRC=${OASIS_SRC}                \
-      -DICON_SRC=${ICON_SRC}                  \
-      -DeCLM_SRC=${eCLM_SRC}                  \
-      -DPARFLOW_SRC=${PARFLOW_SRC}            \
+      ${CMAKE_COMPSRC}                            \
       -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
       |& tee ${BUILD_LOG}
 
