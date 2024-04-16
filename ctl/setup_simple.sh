@@ -159,7 +159,8 @@ cd ${run_dir}
 if [[ "${modelid}" == *icon* ]]; then
 
 # link executeable (will be replaced with copy in production)
-  ln -sf $tsmp2_install_dir/bin/icon icon
+#  ln -sf $tsmp2_install_dir/bin/icon icon
+  cp $tsmp2_install_dir/bin/icon icon
 
 # copy namelist
   cp ${nml_dir}/icon/NAMELIST_icon NAMELIST_icon
@@ -194,7 +195,8 @@ if [[ "${modelid}" == *clm* ]]; then
   fini_clm=${pre_dir}/eclm/CLM5EUR-0275_SP_ERA5_GLC2000_newmask_spinupv2.clm2.r.2015-01-01-00000.nc
 
 # link executeable
-  ln -sf $tsmp2_install_dir/bin/eclm.exe eclm
+#  ln -sf $tsmp2_install_dir/bin/eclm.exe eclm
+  cp $tsmp2_install_dir/bin/eclm.exe eclm
 
 # calculation for automated adjustment of clm forcing
   forcedate=$(date '+%s' -d "${datep1} + 1 month - 1 day")
@@ -250,7 +252,8 @@ fi # if modelid == CLM
 if [[ "${modelid}" == *parflow* ]]; then
 
 # link executeable
-  ln -sf $tsmp2_install_dir/bin/parflow parflow
+#  ln -sf $tsmp2_install_dir/bin/parflow parflow
+  cp $tsmp2_install_dir/bin/parflow parflow
 
 # copy namelist
   cp ${nml_dir}/parflow/ascii2pfb_slopes.tcl ascii2pfb_slopes.tcl
