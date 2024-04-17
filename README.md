@@ -28,7 +28,7 @@ cd ${wfe_dir}/src
 
 ```bash
 # TSMP2
-git clone https://github.com/HPSCTerrSys/TSMP2.git
+git clone -b frontend_prototype https://github.com/HPSCTerrSys/TSMP2.git
 export TSMP2_DIR=$(realpath TSMP2)
 cd $TSMP2_DIR
 
@@ -78,8 +78,7 @@ export MODEL_ID="ICON-eCLM-ParFlow"
 
 Compile the code
 ```bash
-cd ${wfe_dir}/ctl
-./build_tsmp2.sh
+./${TSMP2_DIR}/build_tsmp2.sh
 ```
 
 ## Run experiment
