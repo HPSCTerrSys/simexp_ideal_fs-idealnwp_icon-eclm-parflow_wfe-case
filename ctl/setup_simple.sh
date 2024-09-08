@@ -81,13 +81,13 @@ else
 tsmp2_dir=$tsmp2_dir_u
 fi
 if [ -z "$tsmp2_install_dir_u" ]; then
-tsmp2_install_dir=${tsmp2_dir}/run/${SYSTEMNAME^^}_${MODEL_ID}
+tsmp2_install_dir=${tsmp2_dir}/bin/${SYSTEMNAME^^}_${MODEL_ID}
 echo "Take TSMP2 component binaries from default dir at $tsmp2_install_dir"
 else
 tsmp2_install_dir=$tsmp2_install_dir_u
 fi
 if [ -z "$tsmp2_env_u" ]; then
-tsmp2_env=$tsmp2_dir/env/jsc.2022_Intel.sh
+tsmp2_env=$tsmp2_install_dir/jsc.2023_Intel.sh
 echo "Use enviromnent file $tsmp2_env"
 else
 tsmp2_env=$tsmp2_env_u
