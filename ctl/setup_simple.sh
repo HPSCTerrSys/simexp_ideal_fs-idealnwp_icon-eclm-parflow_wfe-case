@@ -284,13 +284,13 @@ if [[ "${MODEL_ID}" == *-* ]]; then
 
 # OAS NML
   sed -i "s/__cplfrq__/$cpl_frq/" namcouple
-  sed -i "s/__simlen__/$simlensec/" namcouple
+  sed -i "s/__simlen__/$(( $simlensec + $cpl_frq ))/" namcouple
 
 # copy remap-files
-  cp ${geo_dir}/static/oasis/masks.nc .
+  cp ${geo_dir}/oasis/static/masks.nc .
 #  cp ${geo_dir}/static/oasis/grids.nc .
-  if [[ "${modelid}" == *icon* ]]; then
-    cp ${geo_dir}/static/oasis/rmp* .
+  if [[ "${modelid}" == *parflow* ]]; then
+    cp ${geo_dir}/oasis/static/rmp* .
   fi
 
 fi # if modelid == oasis
