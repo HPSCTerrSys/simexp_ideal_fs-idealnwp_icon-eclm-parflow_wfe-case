@@ -227,9 +227,10 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s/__clm_tsp__/$clm_tsp/" lnd_in
   sed -i "s#__fini_clm__#$fini_clm#" lnd_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" lnd_in
+  sed -i "s#__domainfile_clm__#$domainfile_clm#" lnd_in
+  sed -i "s#__surffile_clm__#$surffile_clm#" lnd_in
   if [[ "${modelid}" != *parflow* ]]; then
     sed -i "s/__swmm__/1/" lnd_in # soilwater_movement_method
-#    sed -i "s/__clmoutvar__/'TLAI', 'FIRA', 'FIRE', 'ALBD', 'ALBI', 'TSA', 'TV', 'TG', 'TSKIN', 'TSOI','FSH','EFLX_LH_TOT'/" lnd_in
     sed -i "s/__clmoutvar__/'TWS','H2OSOI','QFLX_EVAP_TOT','TG','TSOI','FSH','FSR'/" lnd_in
   else
     sed -i "s/__swmm__/4/" lnd_in # soilwater_movement_method
@@ -238,12 +239,14 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm_in
   sed -i "s/__simystart__/$(date -u -d "${startdate}" +%Y)/g" datm_in
   sed -i "s/__simyend__/$(date -u -d "${startdate}" +%Y)/g" datm_in
+  sed -i "s#__domainfile_clm__#$domainfile_clm#" datm_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" drv_flds_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" mosart_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm.streams.txt*
   # forcing
   sed -i "s#__forcdir__#${pre_dir}/eclm/forcing/#" datm.streams.txt.CLMCRUNCEPv7.*
   sed -i "s#__forclist__#${forcdatelist}#" datm.streams.txt.CLMCRUNCEPv7.*
+  sed -i "s#__domainfile_clm__#$domainfile_clm#" datm.streams.txt.CLMCRUNCEPv7.*
 fi # if modelid == CLM
 
 ####################
