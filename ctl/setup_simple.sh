@@ -303,8 +303,19 @@ if [[ "${MODEL_ID}" == *-* ]]; then
   cp ${nml_dir}/oasis/namcouple_${modelid} namcouple
 
 # OAS NML
-  sed -i "s/__cplfrq__/$cpl_frq/" namcouple
-  sed -i "s/__simlen__/$(( $simlensec + $cpl_frq ))/" namcouple
+  sed -i "s/__cpltsp_as__/$cpltsp_atmsfc/" namcouple
+  sed -i "s/__simlen__/$(( $simlensec + $cpltsp_atmsfc ))/" namcouple
+  if [[ "${modelid}" == *icon* ]]; then
+    sed -i "s/__icongp__/9800/" namcouple
+  fi
+  if [[ "${modelid}" == *eclm* ]]; then
+    sed -i "s/__eclmgpx__/9800/" namcouple
+    sed -i "s/__eclmgpy__/1/" namcouple
+  fi
+  if [[ "${modelid}" == *parflow* ]]; then
+    sed -i "s/__parflowgpx__/70/" namcouple
+    sed -i "s/__parflowgpy__/70/" namcouple
+  fi
 
 # copy remap-files
   cp ${geo_dir}/oasis/static/masks.nc .
