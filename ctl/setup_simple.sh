@@ -24,7 +24,10 @@ tsmp2_dir_u=$TSMP2_DIR
 tsmp2_install_dir_u="" # leave empty to take default
 tsmp2_env_u="" # leave empty to take default
 
-cpl_frq=1800
+EXP_ID="fs-idealnwp"
+
+cpltsp_atmsfc=600 # coupling time step, atm-sfc, eCLM timestep
+cpltsp_sfcss=600 # coupling time step, sfc-ss, ParFlow timestep
 simlength="1 day"
 startdate="2015-01-01T00:00Z" # ISO norm 8601
 
@@ -224,6 +227,7 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s/__simstart__/$(date -u -d "${startdate}" +%Y%m%d)/" drv_in
   sed -i "s/__simend__/$(date -u -d "${datep1}" +%Y%m%d)/" drv_in
   sed -i "s/__simrestart__/$(date -u -d "${datep1}" +%Y%m%d)/" drv_in
+  sed -i "s/__clm_casename__/eCLM_${EXP_ID}/" drv_in
   sed -i "s/__clm_tsp__/$clm_tsp/" lnd_in
   sed -i "s#__fini_clm__#$fini_clm#" lnd_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" lnd_in
@@ -258,18 +262,34 @@ if [[ "${modelid}" == *parflow* ]]; then
 #  ln -sf $tsmp2_install_dir/bin/parflow parflow
   cp $tsmp2_install_dir/bin/parflow parflow
 
+#  
+  parflow_tsp=$(echo "$cpltsp_sfcss / 3600" | bc -l)
+  parflow_base=0.0025
+  parflow_inifile=${pre_dir}/parflow/ini/rur_ic_press.pfb
+
 # copy namelist
-  cp ${nml_dir}/parflow/ascii2pfb_slopes.tcl ascii2pfb_slopes.tcl
-  cp ${nml_dir}/parflow/ascii2pfb_SoilInd.tcl ascii2pfb_SoilInd.tcl
+#  cp ${nml_dir}/parflow/ascii2pfb_slopes.tcl ascii2pfb_slopes.tcl
+#  cp ${nml_dir}/parflow/ascii2pfb_SoilInd.tcl ascii2pfb_SoilInd.tcl
   cp ${nml_dir}/parflow/coup_oas.tcl coup_oas.tcl
 
 # PFL NML
+#  sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" ascii2pfb_slopes.tcl
+#  sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" ascii2pfb_slopes.tcl
+#  sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" ascii2pfb_SoilInd.tcl
+#  sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" ascii2pfb_SoilInd.tcl
   sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" coup_oas.tcl
   sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" coup_oas.tcl
-  sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" ascii2pfb_slopes.tcl
-  sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" ascii2pfb_slopes.tcl
-  sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" ascii2pfb_SoilInd.tcl
-  sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" ascii2pfb_SoilInd.tcl
+  sed -i "s/__ngpflx_bldsva__/70/" coup_oas.tcl
+  sed -i "s/__ngpfly_bldsva__/70/" coup_oas.tcl
+  sed -i "s/__base_pfl__/$parflow_base/" coup_oas.tcl
+  sed -i "s/__start_cnt_pfl__/0/" coup_oas.tcl
+  sed -i "s/__stop_pfl_bldsva__/$(echo "${simlenhr} + ${parflow_base}" | bc -l)/" coup_oas.tcl
+  sed -i "s/__dt_pfl_bldsva__/$parflow_tsp/" coup_oas.tcl
+  sed -i "s/__dump_pfl_interval__/1.0/" coup_oas.tcl
+  sed -i "s/__pfl_casename__/$EXP_ID/" coup_oas.tcl
+  sed -i "s#__inifile__#$parflow_inifile#" coup_oas.tcl
+
+  sed -i "s/__pfl_expid__/$EXP_ID/" slm_multiprog_mapping.conf
 
 fi # if modelid == parflow
 
