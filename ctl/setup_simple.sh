@@ -196,6 +196,7 @@ if [[ "${modelid}" == *clm* ]]; then
   clm_tsp=${cpl_frq}
 # 
   fini_clm=${pre_dir}/eclm/CLM5EUR-0275_SP_ERA5_GLC2000_newmask_spinupv2.clm2.r.2015-01-01-00000.nc
+  clmoutfrq=-1
 
 # link executeable
 #  ln -sf $tsmp2_install_dir/bin/eclm.exe eclm
@@ -229,6 +230,7 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s/__simrestart__/$(date -u -d "${datep1}" +%Y%m%d)/" drv_in
   sed -i "s/__clm_casename__/eCLM_${EXP_ID}/" drv_in
   sed -i "s/__clm_tsp__/$clm_tsp/" lnd_in
+  sed -i "s/\( hist_nhtfrq =\).*/\1 $clmoutfrq/" lnd_in
   sed -i "s#__fini_clm__#$fini_clm#" lnd_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" lnd_in
   sed -i "s#__domainfile_clm__#$domainfile_clm#" lnd_in
