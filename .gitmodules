@@ -1,0 +1,16 @@
+[submodule "ctl/namelist/eclm"]
+	path = ctl/namelist/eclm
+	url = https://github.com/HPSCTerrSys/namelist_eCLM_spmode-template.git
+	branch = master
+[submodule "ctl/namelist/icon"]
+	path = ctl/namelist/icon
+	url = https://github.com/HPSCTerrSys/namelist_ICON_fs-idealnwp.git
+	branch = master
+[submodule "ctl/namelist/parflow"]
+	path = ctl/namelist/parflow
+	url = https://github.com/HPSCTerrSys/namelist_ParFlow_fs-idealnwp.git
+	branch = master
+[submodule "ctl/namelist/oasis"]
+	path = ctl/namelist/oasis
+	url = https://github.com/HPSCTerrSys/namelist_oasis3-mct_ideal-template.git
+	branch = master
