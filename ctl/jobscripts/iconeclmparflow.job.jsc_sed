@@ -47,8 +47,8 @@ tclsh coup_oas.tcl
 
 # Run model
 TIME_START=$(date +%s)
-echo ">>> iconeclm started at $(date +%H:%M:%S)"
+echo ">>> TSMP2 started at $(date +%H:%M:%S)"
 srun --multi-prog slm_multiprog_mapping.conf
 TIME_END=$(date +%s)
-echo ">>> iconeclm finished at $(date +%H:%M:%S)"
-echo ">>> iconeclm runtime: $(date -u -d "0 $TIME_END sec - $TIME_START sec" +"%H:%M:%S")"
+echo ">>> TSMP2 finished at $(date +%H:%M:%S)"
+echo ">>> TSMP2 runtime: $(date -u -d "0 $TIME_END sec - $TIME_START sec" +"%H:%M:%S")"
