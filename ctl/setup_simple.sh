@@ -304,6 +304,7 @@ if [[ "${MODEL_ID}" == *-* ]]; then
 
 # OAS NML
   sed -i "s/__cpltsp_as__/$cpltsp_atmsfc/" namcouple
+  sed -i "s/__cpltsp_ss__/$cpltsp_sfcss/" namcouple
   sed -i "s/__simlen__/$(( $simlensec + $cpltsp_atmsfc ))/" namcouple
   if [[ "${modelid}" == *icon* ]]; then
     sed -i "s/__icongp__/9800/" namcouple
