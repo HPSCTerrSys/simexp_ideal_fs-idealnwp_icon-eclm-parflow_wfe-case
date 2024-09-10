@@ -1,6 +1,0 @@
-[submodule "geo"]
-	path = geo
-	url = https://icg4geo.icg.kfa-juelich.de/Configurations/TSMP_statfiles_IBG3/geo_tsmp2_eur-0275.git
-[submodule "ctl/namelist"]
-	path = ctl/namelist
-	url = https://icg4geo.icg.kfa-juelich.de/Configurations/tsmp2_namelists/nml_tsmp2_eur-0275.git
