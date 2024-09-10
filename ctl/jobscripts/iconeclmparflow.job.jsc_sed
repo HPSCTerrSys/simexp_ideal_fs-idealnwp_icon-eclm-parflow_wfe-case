@@ -9,9 +9,9 @@
 #SBATCH --output=%j.iconeclmparflow.out
 #SBATCH --error=%j.iconeclmparflow.err
 
-ECLM_LOADENVS=__loadenvs__
+LOADENVS=__loadenvs__
 CASE_DIR=__run_dir__
-export PARFLOW_DIR=__parflow_dir__
+export PARFLOW_DIR=__parflow_bin__
 if [[ ! -f $LOADENVS || -z "$LOADENVS" ]]; then
   echo "ERROR: Loadenvs script '$LOADENVS' does not exist."
   exit 1
@@ -41,8 +41,8 @@ for comp in ${comps[*]}; do
 done
 
 # ParFlow config
-tclsh ascii2pfb_slopes.tcl 
-tclsh ascii2pfb_SoilInd.tcl
+#tclsh ascii2pfb_slopes.tcl 
+#tclsh ascii2pfb_SoilInd.tcl
 tclsh coup_oas.tcl
 
 # Run model
