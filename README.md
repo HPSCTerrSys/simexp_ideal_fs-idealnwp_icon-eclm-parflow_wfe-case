@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This make use of the TSMP2 workflow engine for running simulations.
+This simulation experiment make use of the TSMP2 workflow engine for running simulations.
 
 ## Setup the workflow
 
@@ -13,14 +13,14 @@ git clone --recurse-submodules https://github.com/HPSCTerrSys/simexp_$sim_id $si
 wfe_dir=realpath $sim_id
 ```
 
-The TSMP2 ( https://github.com/HPSCTerrSys/TSMP2 ) should be already compiled (see [ReadMe TSMP2](https://github.com/HPSCTerrSys/TSMP2/blob/master/README.md)).
-
 ## Building the model
 
-In case the model is already build, this step can be skipped by setting the `TSMP2_DIR` variable to the directory of TSMP2.
+The TSMP2 ( https://github.com/HPSCTerrSys/TSMP2 ) should be either already compiled (see [ReadMe TSMP2](https://github.com/HPSCTerrSys/TSMP2/blob/master/README.md)) or compiled with the following steps.
 
 0) change directory
+```bash
 cd ${wfe_dir}/src/TSMP2
+```
 
 1) compile the code
 
@@ -41,7 +41,7 @@ ln -s $SCRATCH_DIR/run run
 Adapt ressources and time in the setup-script. 
 ``` bash
 cd ctl
-vi setup_simple.sh
+vi setup_tsmp2.sh
 ```
 
 Activate a compute project
@@ -55,7 +55,7 @@ echo $BUDGET_ACCOUNTS
 
 Start simulation
 ``` bash
-sh setup_simple.sh
+sh setup_tsmp2.sh
 ```
 
 ## Contact
