@@ -99,9 +99,9 @@ fi
 # calculate needed variables
 ico_proc=$(($ico_node*$npnode))
 clm_proc=$(($clm_node*$npnode))
-pfl_proc=$(($pfl_node*$npnode))
 pfl_procY=12
-pfl_procX=$(($pfl_proc/$pfl_procY))
+pfl_procX=$((($pfl_node*$npnode)/$pfl_procY))
+pfl_proc=$(($pfl_procY*$pfl_procX))
 
 ###
 # Start replacing variables
