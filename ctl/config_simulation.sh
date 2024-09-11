@@ -7,9 +7,12 @@ config_tsmp2_simulation(){
 # calculate needed variables
 ico_proc=$(($ico_node*$npnode))
 clm_proc=$(($clm_node*$npnode))
-pfl_procY=12
-pfl_procX=$((($pfl_node*$npnode)/$pfl_procY))
+pfl_proc_tmp=$(($pfl_node*$npnode))
+pfl_proc_sqrt=$(echo "sqrt($pfl_proc_tmp)" | bc -l)
+pfl_procY=$((${pfl_proc_sqrt%.*} + (2 - ${pfl_proc_sqrt%.*} % 2))) # go to next num of 2
+pfl_procX=$(($pfl_proc_tmp/$pfl_procY))
 pfl_proc=$(($pfl_procY*$pfl_procX))
+unset pfl_proc_tmp pfl_proc_sqrt
 
 ###
 # Start replacing variables
