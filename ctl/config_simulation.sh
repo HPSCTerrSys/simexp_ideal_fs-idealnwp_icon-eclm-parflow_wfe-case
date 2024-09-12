@@ -109,7 +109,7 @@ if [[ "${modelid}" == *clm* ]]; then
   clmoutfrq=-1
 #
   domainfile_clm=domain_ICON_torus_70x70_e2000_240516.nc
-  surffile_clm=surfdata_${EXP_ID}_${CASE_ID}.nc
+  surffile_clm=surfdata_${EXP_ID}_${CASE_ID:0:11}.nc
   fini_clm=""
 
 # link executeable
@@ -165,6 +165,7 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" drv_flds_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" mosart_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm.streams.txt*
+  sed -i "s#topodata_0.9x1.25_USGS_070110_stream_c151201.nc#topodata_0.9x1.25_zeroed.nc#" datm.streams.txt.topo.observed
   # forcing
   sed -i "s#__forcdir__#${pre_dir}/eclm/forcing/#" datm.streams.txt.CLMCRUNCEPv7.*
   sed -i "s#__forclist__#${forcdatelist}#" datm.streams.txt.CLMCRUNCEPv7.*

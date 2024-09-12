@@ -14,7 +14,23 @@
 	path = ctl/namelist/oasis
 	url = https://github.com/HPSCTerrSys/namelist_oasis3-mct_ideal-template.git
 	branch = master
+[submodule "src/TSMP2"]
+        path = src/TSMP2
+        url = https://github.com/HPSCTerrSys/TSMP2.git
+        branch = dev_frontend
 [submodule "geo/icon"]
 	path = geo/icon
 	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_icon_fs-idealnwp.git
+	branch = master
+[submodule "geo/oasis"]
+	path = geo/oasis
+	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_oasis3-mct_fs-idealnwp.git
+	branch = master
+[submodule "geo/eclm"]
+	path = geo/eclm
+	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_eclm_fs-idealnwp.git
+	branch = master
+[submodule "geo/parflow"]
+	path = geo/parflow
+	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_parflow_fs-idealnwp.git
 	branch = master
