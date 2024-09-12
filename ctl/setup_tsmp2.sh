@@ -17,14 +17,15 @@ pfl_node=1
 npnode_u="" # number of cores per node
 partition_u="" # compute partition
 account_u=$BUDGET_ACCOUNTS # SET compute account. If not set, slts is taken
-wallclock=00:10:00 #04:00:00 # needs to be format hh:mm:ss
+wallclock=00:15:00 # needs to be format hh:mm:ss
 
-MODEL_ID=ICON-eCLM #ICON-eCLM-ParFlow #ParFlow #ICON-eCLM #ICON-eCLM-ParFlow #ICON 
+MODEL_ID=ICON-eCLM-ParFlow #ICON-eCLM-ParFlow #ParFlow #ICON-eCLM #ICON-eCLM-ParFlow #ICON 
 tsmp2_dir_u=$TSMP2_DIR
 tsmp2_install_dir_u="" # leave empty to take default
 tsmp2_env_u="" # leave empty to take default
 
 EXP_ID="fs-idealnwp"
+CASE_ID="pft01-sID02-Sv30"
 
 cpltsp_atmsfc=600 # coupling time step, atm-sfc, eCLM timestep
 cpltsp_sfcss=600 # coupling time step, sfc-ss, ParFlow timestep
@@ -37,6 +38,10 @@ startdate="2015-07-01T00:00Z" # ISO norm 8601
 # Start of script
 ###
 
+echo "###"
+echo "# Start TSMP WFE"
+echo "###"
+
 modelid=$(echo ${MODEL_ID//"-"/} | tr '[:upper:]' '[:lower:]')
 
 datep1=$(date -u -d -I "+${startdate} + ${simlength}")
@@ -47,7 +52,7 @@ dateymd=$(date -u -d "${startdate}" +%Y%m%d)
 
 # set path
 ctl_dir=$(pwd)
-run_dir=$(realpath ${ctl_dir}/../run/${modelid}_${dateymd}/)
+run_dir=$(realpath ${ctl_dir}/../run/${modelid}_${CASE_ID}/)
 #run_dir=$(realpath ${ctl_dir}/../run/${SYSTEMNAME}_${modelid}_${dateymd}/)
 nml_dir=$(realpath ${ctl_dir}/namelist/)
 geo_dir=$(realpath ${ctl_dir}/../geo/)

@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 #
-# function to perform tsmp2 simulations 
+# function to configure tsmp2 simulations
 
 config_tsmp2_simulation(){
+
+echo "###"
+echo "# Configure Simulation"
+echo "###"
 
 # calculate needed variables
 ico_proc=$(($ico_node*$npnode))
@@ -23,7 +27,7 @@ unset pfl_proc_tmp pfl_proc_sqrt
 ####################
 
 # create and clean-up run-dir 
-echo "rundir can be found at: "$run_dir
+echo "rundir: "$run_dir
 mkdir -pv $run_dir
 #rm -f $run_dir/* 
 
@@ -105,7 +109,7 @@ if [[ "${modelid}" == *clm* ]]; then
   clmoutfrq=-1
 #
   domainfile_clm=domain_ICON_torus_70x70_e2000_240516.nc
-  surffile_clm=surfdata_ICONtorus70x70_ideal_16pfts_c240516.nc
+  surffile_clm=surfdata_${EXP_ID}_${CASE_ID}.nc
   fini_clm=""
 
 # link executeable
@@ -147,10 +151,10 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s#__surffile_clm__#$surffile_clm#" lnd_in
   if [[ "${modelid}" != *parflow* ]]; then
     sed -i "s/__swmm__/1/" lnd_in # soilwater_movement_method
-    sed -i "s/__clmoutvar__/'TWS','H2OSOI','QFLX_EVAP_TOT','TG','TSOI','FSH','FSR'/" lnd_in
+    sed -i "s/__clmoutvar__/'TWS','H2OSOI','TSOI','TG','EFLX_LH_TOT','FSH','FSA','FSR','FIRA'/" lnd_in
   else
     sed -i "s/__swmm__/4/" lnd_in # soilwater_movement_method
-    sed -i "s/__clmoutvar__/'H2OSOI','TG','FSH'/" lnd_in
+    sed -i "s/__clmoutvar__/'TWS','H2OSOI','TSOI','TG','EFLX_LH_TOT','FSH','FSA','FSR','FIRA'/" lnd_in
 #    sed -i "s/__clmoutvar__/'TWS','H2OSOI','QFLX_EVAP_TOT','TG','TSOI','FSH','FSR'/" lnd_in
 #    sed -i "s/__clmoutvar__/'PFL_PSI', 'PFL_PSI_GRC', 'PFL_SOILLIQ', 'PFL_SOILLIQ_GRC', 'RAIN', 'SNOW', 'SOILPSI', 'SMP', 'QPARFLOW', 'FH2OSFC', 'FH2OSFC_NOSNOW', 'FRAC_ICEOLD', 'FSAT', 'H2OCAN', 'H2OSFC', 'H2OSNO', 'H2OSNO_ICE', 'H2OSOI', 'LIQCAN', 'LIQUID_WATER_TEMP1', 'OFFSET_SWI', 'ONSET_SWI', 'QH2OSFC', 'QH2OSFC_TO_ICE', 'QROOTSINK', 'QTOPSOIL', 'SNOLIQFL', 'SNOWLIQ', 'SNOWLIQ_ICE', 'SNOW_SINKS', 'SNOW_SOURCES', 'SNO_BW', 'SNO_BW_ICE', 'SNO_LIQH2O', 'SOILLIQ', 'SOILPSI', 'SOILWATER_10CM', 'TH2OSFC', 'TOTSOILLIQ', 'TWS', 'VEGWP', 'VOLR', 'VOLRMCH', 'WF', 'ZWT', 'ZWT_CH4_UNSAT', 'ZWT_PERCH', 'watfc', 'watsat', 'QINFL', 'Qstor', 'QOVER', 'QRUNOFF', 'EFF_POROSITY', 'TSOI', 'TSKIN', 'QDRAI'/" lnd_in
   fi
@@ -179,12 +183,14 @@ if [[ "${modelid}" == *parflow* ]]; then
 #  
   parflow_tsp=$(echo "$cpltsp_sfcss / 3600" | bc -l)
   parflow_base=0.0025
-  parflow_inifile=${pre_dir}/parflow/ini/rur_ic_press.pfb
+#  parflow_inifile=${pre_dir}/parflow/ini/rur_ic_press.pfb
+  parflow_inifile=${geo_dir}/parflow/init/rur_ic_press_${CASE_ID:6:5}_${CASE_ID:12:4}.pfb
 
 # copy namelist
 #  cp ${nml_dir}/parflow/ascii2pfb_slopes.tcl ascii2pfb_slopes.tcl
 #  cp ${nml_dir}/parflow/ascii2pfb_SoilInd.tcl ascii2pfb_SoilInd.tcl
   cp ${nml_dir}/parflow/coup_oas.tcl coup_oas.tcl
+  cp ${parflow_inifile}  $(basename "$parflow_inifile")
 
 # PFL NML
 #  sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" ascii2pfb_slopes.tcl
@@ -201,9 +207,29 @@ if [[ "${modelid}" == *parflow* ]]; then
   sed -i "s/__dt_pfl_bldsva__/$parflow_tsp/" coup_oas.tcl
   sed -i "s/__dump_pfl_interval__/1.0/" coup_oas.tcl
   sed -i "s/__pfl_casename__/$EXP_ID/" coup_oas.tcl
-  sed -i "s#__inifile__#$parflow_inifile#" coup_oas.tcl
+  sed -i "s#__inifile__#$(basename "$parflow_inifile")#" coup_oas.tcl
 
   sed -i "s/__pfl_expid__/$EXP_ID/" slm_multiprog_mapping.conf
+
+# PFL NML change surface characteristics based on $CASE_ID
+  # check sID
+  if [ "${CASE_ID:9:2}" = "02" ];then
+     sed -i "s/\( Geom.domain.Porosity.Value\).*/\1 0.389/" coup_oas.tcl
+     sed -i "s/\( Geom.domain.RelPerm.Alpha\).*/\1 2.69/" coup_oas.tcl
+     sed -i "s/\( Geom.domain.RelPerm.N\).*/\1 1.41/" coup_oas.tcl
+     sed -i "s/\( Geom.domain.Saturation.Alpha\).*/\1 2.69/" coup_oas.tcl
+     sed -i "s/\( Geom.domain.Saturation.N\).*/\1 1.41/" coup_oas.tcl
+     sed -i "s/\( Geom.domain.Saturation.Sres\).*/\1 0.08/" coup_oas.tcl
+  elif [ "${CASE_ID:9:2}" = "00" ];then
+     sed -i "s/\( Geom.domain.Porosity.Value\).*/\1 0.441/" coup_oas.tcl
+     sed -i "s/\( Geom.domain.RelPerm.Alpha\).*/\1 1.122/" coup_oas.tcl
+     sed -i "s/\( Geom.domain.RelPerm.N\).*/\1 1.5488/" coup_oas.tcl
+     sed -i "s/\( Geom.domain.Saturation.Alpha\).*/\1 1.122/" coup_oas.tcl
+     sed -i "s/\( Geom.domain.Saturation.N\).*/\1 1.5488/" coup_oas.tcl
+     sed -i "s/\( Geom.domain.Saturation.Sres\).*/\1 0.21/" coup_oas.tcl
+  else
+     echo "WARNING: No valid sID is chosen! Take sID02"
+  fi
 
 fi # if modelid == parflow
 
@@ -235,7 +261,10 @@ if [[ "${MODEL_ID}" == *-* ]]; then
 
 fi # if modelid == oasis
 
-echo "Configured case."
+echo "Configuration:"
+echo "MODEL_ID: "$MODEL_ID
+echo "CASE_ID: "$CASE_ID
+
 
 ###########################################
 

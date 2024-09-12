@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=tsmp2-iconeclm
+#SBATCH --job-name=tsmp2-iconeclmparflow
 #SBATCH --nodes=__ntot_node__
 #SBATCH --ntasks=__ntot_proc__
 #SBATCH --ntasks-per-node=__npnode__
