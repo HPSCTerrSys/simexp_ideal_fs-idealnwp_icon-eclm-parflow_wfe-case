@@ -151,10 +151,10 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s#__surffile_clm__#$surffile_clm#" lnd_in
   if [[ "${modelid}" != *parflow* ]]; then
     sed -i "s/__swmm__/1/" lnd_in # soilwater_movement_method
-    sed -i "s/__clmoutvar__/'TWS','H2OSOI','TSOI','TG','EFLX_LH_TOT','FSH','FSA','FSR','FIRA'/" lnd_in
+    sed -i "s/__clmoutvar__/'TWS','H2OSOI','TSOI','TG','EFLX_LH_TOT','FSH','FSA','FSR','FIRA','Rnet','EFLX_SOIL_GRND'/" lnd_in
   else
     sed -i "s/__swmm__/4/" lnd_in # soilwater_movement_method
-    sed -i "s/__clmoutvar__/'TWS','H2OSOI','TSOI','TG','EFLX_LH_TOT','FSH','FSA','FSR','FIRA'/" lnd_in
+    sed -i "s/__clmoutvar__/'TWS','H2OSOI','TSOI','TG','EFLX_LH_TOT','FSH','FSA','FSR','FIRA','Rnet','EFLX_SOIL_GRND'/" lnd_in
 #    sed -i "s/__clmoutvar__/'TWS','H2OSOI','QFLX_EVAP_TOT','TG','TSOI','FSH','FSR'/" lnd_in
 #    sed -i "s/__clmoutvar__/'PFL_PSI', 'PFL_PSI_GRC', 'PFL_SOILLIQ', 'PFL_SOILLIQ_GRC', 'RAIN', 'SNOW', 'SOILPSI', 'SMP', 'QPARFLOW', 'FH2OSFC', 'FH2OSFC_NOSNOW', 'FRAC_ICEOLD', 'FSAT', 'H2OCAN', 'H2OSFC', 'H2OSNO', 'H2OSNO_ICE', 'H2OSOI', 'LIQCAN', 'LIQUID_WATER_TEMP1', 'OFFSET_SWI', 'ONSET_SWI', 'QH2OSFC', 'QH2OSFC_TO_ICE', 'QROOTSINK', 'QTOPSOIL', 'SNOLIQFL', 'SNOWLIQ', 'SNOWLIQ_ICE', 'SNOW_SINKS', 'SNOW_SOURCES', 'SNO_BW', 'SNO_BW_ICE', 'SNO_LIQH2O', 'SOILLIQ', 'SOILPSI', 'SOILWATER_10CM', 'TH2OSFC', 'TOTSOILLIQ', 'TWS', 'VEGWP', 'VOLR', 'VOLRMCH', 'WF', 'ZWT', 'ZWT_CH4_UNSAT', 'ZWT_PERCH', 'watfc', 'watsat', 'QINFL', 'Qstor', 'QOVER', 'QRUNOFF', 'EFF_POROSITY', 'TSOI', 'TSKIN', 'QDRAI'/" lnd_in
   fi
