@@ -14,3 +14,7 @@
 	path = ctl/namelist/oasis
 	url = https://github.com/HPSCTerrSys/namelist_oasis3-mct_ideal-template.git
 	branch = master
+[submodule "geo/icon"]
+	path = geo/icon
+	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_icon_fs-idealnwp.git
+	branch = master
