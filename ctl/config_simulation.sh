@@ -85,7 +85,7 @@ if [[ "${modelid}" == *icon* ]]; then
   cp ${nml_dir}/icon/icon_master.namelist icon_master.namelist
 
 # ICON NML
-  sed -i "s#__ecraddata_dir__#/p/scratch/cslts/poll1/data/ecraddata#" NAMELIST_icon # needs to be short path in ICON v2.6.4
+  sed -i "s#__ecraddata_dir__#ecraddata#" NAMELIST_icon # needs to be short path in ICON v2.6.4
   sed -i "s/__dateymd__/${dateymd}/" NAMELIST_icon
   sed -i "s/__outdatestart__/$(date -u -d "${startdate}" +%Y-%m-%dT%H:%M:%SZ)/" NAMELIST_icon
   sed -i "s/__outdateend__/$(date -u -d "${datep1}" +%Y-%m-%dT%H:%M:%SZ)/" NAMELIST_icon
@@ -95,6 +95,7 @@ if [[ "${modelid}" == *icon* ]]; then
 
 # link needed files
   ln -sf ${geo_dir}/icon/static/torus_grid_x70_y70_e2000m.nc
+  ln -sf ${geo_dir}/icon/static/ecraddata
 
 fi # if modelid == ICON
 
@@ -167,7 +168,7 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm.streams.txt*
   sed -i "s#topodata_0.9x1.25_USGS_070110_stream_c151201.nc#topodata_0.9x1.25_zeroed.nc#" datm.streams.txt.topo.observed
   # forcing
-  sed -i "s#__forcdir__#${pre_dir}/eclm/forcing/#" datm.streams.txt.CLMCRUNCEPv7.*
+  sed -i "s#__forcdir__#${geo_dir}/eclm/forcing/#" datm.streams.txt.CLMCRUNCEPv7.*
   sed -i "s#__forclist__#${forcdatelist}#" datm.streams.txt.CLMCRUNCEPv7.*
   sed -i "s#__domainfile_clm__#$domainfile_clm#" datm.streams.txt.CLMCRUNCEPv7.*
 fi # if modelid == CLM
