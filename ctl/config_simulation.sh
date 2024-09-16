@@ -8,10 +8,10 @@ echo "###"
 echo "# Configure Simulation"
 echo "###"
 
-# calculate needed variables
-ico_proc=$(($ico_node*$npnode))
-clm_proc=$(($clm_node*$npnode))
-pfl_proc_tmp=$(($pfl_node*$npnode))
+# calculate needed variables TODO: take LC_NUMERIC into account
+ico_proc=$( printf %.0f $(echo "$ico_node * $npnode" | bc -l))
+clm_proc=$( printf %.0f $(echo "$clm_node * $npnode" | bc -l))
+pfl_proc_tmp=$( printf %.0f $(echo "$pfl_node * $npnode" | bc -l))
 pfl_proc_sqrt=$(echo "sqrt($pfl_proc_tmp)" | bc -l)
 pfl_procY=$((${pfl_proc_sqrt%.*} + (2 - ${pfl_proc_sqrt%.*} % 2))) # go to next num of 2
 pfl_procX=$(($pfl_proc_tmp/$pfl_procY))
@@ -61,7 +61,7 @@ sed -i "s/__pfl_pe__/$(($ico_proc+$clm_proc+$pfl_proc-1))/" ${run_dir}/slm_multi
 sed -i "s#__wallclock__#$wallclock#" ${run_dir}/tsmp2.job.jsc
 sed -i "s#__loadenvs__#$tsmp2_env#" ${run_dir}/tsmp2.job.jsc
 sed -i "s/__ntot_proc__/$(($ico_proc+$clm_proc+$pfl_proc))/" ${run_dir}/tsmp2.job.jsc
-sed -i "s/__ntot_node__/$(($ico_node+$clm_node+$pfl_node))/" ${run_dir}/tsmp2.job.jsc
+sed -i "s/__ntot_node__/$(echo $(echo "$ico_node+$clm_node+$pfl_node" | bc -l) | sed -e 's/\.0*$//;s/\.[0-9]*$/ + 1/' | bc)/" ${run_dir}/tsmp2.job.jsc # ceil num of nodes
 sed -i "s#__run_dir__#$run_dir#" ${run_dir}/tsmp2.job.jsc
 sed -i "s/__partition__/$partition/" ${run_dir}/tsmp2.job.jsc
 sed -i "s/__account__/$account/" ${run_dir}/tsmp2.job.jsc
