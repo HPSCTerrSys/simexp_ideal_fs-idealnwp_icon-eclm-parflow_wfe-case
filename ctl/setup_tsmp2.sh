@@ -9,28 +9,27 @@ set -e
 ###
 
 # number of nodes per component
-ico_node=1
+ico_node=3
 clm_node=1
-pfl_node=1
+pfl_node=2
 
 # user setting, leave empty for jsc machine defaults
 npnode_u="" # number of cores per node
 partition_u="" # compute partition
 account_u=$BUDGET_ACCOUNTS # SET compute account. If not set, slts is taken
-wallclock=00:15:00 # needs to be format hh:mm:ss
+wallclock=00:25:00 # needs to be format hh:mm:ss
 
-MODEL_ID=ICON-eCLM-ParFlow #ICON-eCLM-ParFlow #ParFlow #ICON-eCLM #ICON-eCLM-ParFlow #ICON 
+MODEL_ID=ICON-eCLM #ICON-eCLM-ParFlow #ParFlow #ICON-eCLM #ICON-eCLM-ParFlow #ICON 
 tsmp2_dir_u=$TSMP2_DIR
 tsmp2_install_dir_u="" # leave empty to take default
 tsmp2_env_u="" # leave empty to take default
 
-EXP_ID="fs-idealnwp"
-CASE_ID="pft01-sID02-Sv30"
+EXP_ID="eur-11u"
 
-cpltsp_atmsfc=600 # coupling time step, atm-sfc, eCLM timestep
-cpltsp_sfcss=600 # coupling time step, sfc-ss, ParFlow timestep
-simlength="1 day"
-startdate="2015-07-01T00:00Z" # ISO norm 8601
+cpltsp_atmsfc=1800 # coupling time step, atm-sfc, eCLM timestep
+cpltsp_sfcss=1800 # coupling time step, sfc-ss, ParFlow timestep
+simlength="1 day" #"23 hours"
+startdate="2017-07-01T00:00Z" # ISO norm 8601
 
 ###########################################
 
@@ -52,7 +51,7 @@ dateymd=$(date -u -d "${startdate}" +%Y%m%d)
 
 # set path
 ctl_dir=$(pwd)
-run_dir=$(realpath ${ctl_dir}/../run/${modelid}_${CASE_ID}/)
+run_dir=$(realpath ${ctl_dir}/../run/${modelid}_${dateymd}/)
 #run_dir=$(realpath ${ctl_dir}/../run/${SYSTEMNAME}_${modelid}_${dateymd}/)
 nml_dir=$(realpath ${ctl_dir}/namelist/)
 geo_dir=$(realpath ${ctl_dir}/../geo/)
@@ -101,6 +100,11 @@ echo "Use enviromnent file $tsmp2_env"
 else
 tsmp2_env=$tsmp2_env_u
 fi
+
+###
+# Source environment
+###
+source ${tsmp2_env}
 
 ###
 # Import functions
