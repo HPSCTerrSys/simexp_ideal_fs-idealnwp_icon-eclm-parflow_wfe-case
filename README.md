@@ -1,4 +1,4 @@
-# ideal_fs-idealnwp_ICONv2.6.4-eCLM-ParFlowv3.12
+# real_CORDEX-EUR-11u_iconv2.6.4-eclm-parflowv3.12
 
 ## Introduction
 
@@ -7,7 +7,7 @@ This simulation experiment make use of the TSMP2 workflow engine for running sim
 ## Setup the workflow
 
 ``` bash
-sim_id=ideal_fs-idealnwp_iconv2.6.4-eclm-parflowv3.12_wfe-case
+sim_id=real_CORDEX-EUR-11u_iconv2.6.4-eclm-parflowv3.12_wfe-case
 cd $PROJECT_DIR
 git clone --recurse-submodules https://github.com/HPSCTerrSys/simexp_$sim_id $sim_id
 wfe_dir=realpath $sim_id
