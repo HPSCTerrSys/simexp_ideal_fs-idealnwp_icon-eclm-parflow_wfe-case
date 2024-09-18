@@ -1,18 +1,18 @@
 [submodule "ctl/namelist/eclm"]
 	path = ctl/namelist/eclm
-	url = https://github.com/HPSCTerrSys/namelist_eCLM_spmode-template.git
+	url = https://github.com/HPSCTerrSys/namelist_eCLM_bgcmode-template.git
 	branch = master
 [submodule "ctl/namelist/icon"]
 	path = ctl/namelist/icon
-	url = https://github.com/HPSCTerrSys/namelist_ICON_fs-idealnwp.git
+	url = https://github.com/HPSCTerrSys/namelist_ICON_CORDEX-EUR-11u.git
 	branch = master
 [submodule "ctl/namelist/parflow"]
 	path = ctl/namelist/parflow
-	url = https://github.com/HPSCTerrSys/namelist_ParFlow_fs-idealnwp.git
+	url = https://github.com/HPSCTerrSys/namelist_ParFlow_CORDEX-EUR-11u.git
 	branch = master
 [submodule "ctl/namelist/oasis"]
 	path = ctl/namelist/oasis
-	url = https://github.com/HPSCTerrSys/namelist_oasis3-mct_ideal-template.git
+	url = https://github.com/HPSCTerrSys/namelist_oasis3-mct_TSMP2-real-template.git
 	branch = master
 [submodule "src/TSMP2"]
         path = src/TSMP2
@@ -20,17 +20,17 @@
         branch = dev_frontend
 [submodule "geo/icon"]
 	path = geo/icon
-	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_icon_fs-idealnwp.git
+	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_icon_cordex-eur-11u.git
 	branch = master
 [submodule "geo/oasis"]
 	path = geo/oasis
-	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_oasis3-mct_fs-idealnwp.git
+	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_oasis3-mct_cordex-eur-11u.git
 	branch = master
 [submodule "geo/eclm"]
 	path = geo/eclm
-	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_eclm_fs-idealnwp.git
+	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_eclm_cordex-eur-11u.git
 	branch = master
 [submodule "geo/parflow"]
 	path = geo/parflow
-	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_parflow_fs-idealnwp.git
+	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_parflow_cordex-eur-11u.git
 	branch = master
