@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Basic script to manage settings
-# Stefan Poll (s.poll@fz-juelich.de)
+# Control-script and starter for TSMP2 Workflow engine (TSMP2-WFE)
+# for preprocessing, simulation, postprocessing, monitoring, cleaning/archiving
+#
+# Author(s): Stefan Poll (s.poll@fz-juelich.de)
 set -e
 
 ###########################################
@@ -19,7 +21,7 @@ partition_u="" # compute partition
 account_u=$BUDGET_ACCOUNTS # SET compute account. If not set, slts is taken
 wallclock=00:25:00 # needs to be format hh:mm:ss
 
-MODEL_ID=ICON-eCLM #ICON-eCLM-ParFlow #ParFlow #ICON-eCLM #ICON-eCLM-ParFlow #ICON 
+MODEL_ID=ICON-eCLM-ParFlow #ParFlow #ICON-eCLM #ICON-eCLM-ParFlow #ICON 
 tsmp2_dir_u=$TSMP2_DIR
 tsmp2_install_dir_u="" # leave empty to take default
 tsmp2_env_u="" # leave empty to take default
@@ -31,15 +33,21 @@ cpltsp_sfcss=1800 # coupling time step, sfc-ss, ParFlow timestep
 simlength="1 day" #"23 hours"
 startdate="2017-07-01T00:00Z" # ISO norm 8601
 
+# main switches
+lpre=true
+lsim=true
+lpos=true
+lfin=true
+
 ###########################################
 
 ###
 # Start of script
 ###
 
-echo "###"
-echo "# Start TSMP WFE"
-echo "###"
+echo "#####"
+echo "## Start TSMP WFE"
+echo "#####"
 
 modelid=$(echo ${MODEL_ID//"-"/} | tr '[:upper:]' '[:lower:]')
 
@@ -109,18 +117,57 @@ source ${tsmp2_env}
 ###
 # Import functions
 ###
+source ${ctl_dir}/config_preprocessing.sh
 source ${ctl_dir}/config_simulation.sh
+source ${ctl_dir}/config_postprocessing.sh
+source ${ctl_dir}/config_finishing.sh
 
-###
-# Start replacing variables
-###
+#####
+## Preprocessing
+#####
 
-# configure TSMP2 run-directory
+if $lpre ; then
+
+# Configure TSMP2 preprocessing
+config_tsmp2_preprocessing
+
+fi # $lpre
+
+######
+## Simulations
+######
+
+if $lsim ; then
+
+# Configure TSMP2 run-directory
 config_tsmp2_simulation
 
-###
 # Submit job
-###
-
 sbatch ${run_dir}/tsmp2.job.jsc
 
+fi # $lsim
+
+######
+## Postprocessing
+######
+
+if $lpos ; then
+
+# Configure TSMP2 Postprocessing
+config_tsmp2_postprocessing
+
+fi # $lpos
+
+######
+## Finishing
+######
+
+if $lfin ; then
+
+# Configure TSMP2 Postprocessing
+config_tsmp2_finishing
+
+fi # $lfin
+
+
+exit 0

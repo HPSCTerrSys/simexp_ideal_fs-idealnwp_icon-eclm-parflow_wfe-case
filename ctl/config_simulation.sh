@@ -259,6 +259,7 @@ if [[ "${MODEL_ID}" == *-* ]]; then
 #  cp ${geo_dir}/static/oasis/grids.nc .
   if [[ "${modelid}" == *parflow* ]]; then
     cp ${geo_dir}/oasis/static/rmp* .
+    cp ${geo_dir}/oasis/static/masks_parflow.nc masks.nc
   fi
 
 fi # if modelid == oasis
@@ -267,14 +268,4 @@ echo "Configuration:"
 echo "MODEL_ID: "$MODEL_ID
 
 
-###########################################
-
-###
-# Submit job
-###
-
-#sbatch tsmp2.job.jsc
-
-#echo "Submitted job"
-
-}
+} # config_tsmp2_simulation
