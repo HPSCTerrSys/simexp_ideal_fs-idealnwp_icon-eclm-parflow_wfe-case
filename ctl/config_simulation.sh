@@ -216,8 +216,8 @@ if [[ "${modelid}" == *parflow* ]]; then
   sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" ascii2pfb_SoilInd.tcl
   sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" coup_oas.tcl
   sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" coup_oas.tcl
-  sed -i "s/__ngpflx_bldsva__/70/" coup_oas.tcl
-  sed -i "s/__ngpfly_bldsva__/70/" coup_oas.tcl
+  sed -i "s/__ngpflx_bldsva__/444/" coup_oas.tcl
+  sed -i "s/__ngpfly_bldsva__/432/" coup_oas.tcl
   sed -i "s/__base_pfl__/$parflow_base/" coup_oas.tcl
   sed -i "s/__start_cnt_pfl__/0/" coup_oas.tcl
   sed -i "s/__stop_pfl_bldsva__/$(echo "${simlenhr} + ${parflow_base}" | bc -l)/" coup_oas.tcl
