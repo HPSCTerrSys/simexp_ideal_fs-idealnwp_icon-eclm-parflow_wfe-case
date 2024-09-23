@@ -10,10 +10,16 @@ set -e
 # Settings
 ###
 
-# number of nodes per component
-ico_node=3
-clm_node=1
-pfl_node=2
+# main settings
+MODEL_ID=ICON-eCLM-ParFlow #ParFlow #ICON-eCLM #ICON-eCLM-ParFlow #ICON
+EXP_ID="eur-11u"
+CASE_ID="" # identifier for cases
+
+# main switches
+lpre=true
+lsim=true
+lpos=true
+lfin=true
 
 # user setting, leave empty for jsc machine defaults
 npnode_u="" # number of cores per node
@@ -21,23 +27,21 @@ partition_u="" # compute partition
 account_u=$BUDGET_ACCOUNTS # SET compute account. If not set, slts is taken
 wallclock=00:25:00 # needs to be format hh:mm:ss
 
-MODEL_ID=ICON-eCLM-ParFlow #ParFlow #ICON-eCLM #ICON-eCLM-ParFlow #ICON 
+# file/directory pathes
 tsmp2_dir_u=$TSMP2_DIR
 tsmp2_install_dir_u="" # leave empty to take default
 tsmp2_env_u="" # leave empty to take default
 
-EXP_ID="eur-11u"
-
+# time information
 cpltsp_atmsfc=1800 # coupling time step, atm-sfc, eCLM timestep
 cpltsp_sfcss=1800 # coupling time step, sfc-ss, ParFlow timestep
 simlength="1 day" #"23 hours"
 startdate="2017-07-01T00:00Z" # ISO norm 8601
 
-# main switches
-lpre=true
-lsim=true
-lpos=true
-lfin=true
+# number of nodes per component (<comp>_node will be set to zero, if not indicated in MODEL_ID)
+ico_node=3
+clm_node=1
+pfl_node=2
 
 ###########################################
 
@@ -50,6 +54,7 @@ echo "## Start TSMP WFE"
 echo "#####"
 
 modelid=$(echo ${MODEL_ID//"-"/} | tr '[:upper:]' '[:lower:]')
+if [ -n "${CASE_ID}" ]; then caseid+=${CASE_ID,,}"_"; fi
 
 datep1=$(date -u -d -I "+${startdate} + ${simlength}")
 simlensec=$(( $(date -u -d "${datep1}" +%s)-$(date -u -d "${startdate}" +%s) ))
@@ -59,7 +64,7 @@ dateymd=$(date -u -d "${startdate}" +%Y%m%d)
 
 # set path
 ctl_dir=$(pwd)
-run_dir=$(realpath ${ctl_dir}/../run/${modelid}_${dateymd}/)
+run_dir=$(realpath ${ctl_dir}/../run/${caseid}${modelid}_${dateymd}/)
 #run_dir=$(realpath ${ctl_dir}/../run/${SYSTEMNAME}_${modelid}_${dateymd}/)
 nml_dir=$(realpath ${ctl_dir}/namelist/)
 geo_dir=$(realpath ${ctl_dir}/../geo/)
