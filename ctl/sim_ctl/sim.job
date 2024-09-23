@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# #SBATCH --job-name=tsmp2wfe-sim
+# #SBATCH --nodes=__ntot_node__
+# #SBATCH --ntasks=__ntot_proc__
+# #SBATCH --ntasks-per-node=__npnode__
+# #SBATCH --account=__account__
+# #SBATCH --partition=__partition__
+# #SBATCH --time=__wallclock__
+# #SBATCH --output=%j.iconeclmparflow.out
+# #SBATCH --error=%j.iconeclmparflow.err
+
+###
+# Import functions
+###
+source ${ctl_dir}/sim_ctl/sim_config.sh
+source ${ctl_dir}/sim_ctl/sim_run.sh
+source ${ctl_dir}/sim_ctl/sim_cleanup.sh
+
+###
+# source environment
+###
+source ${tsmp2_env}
+
+###
+# Start config, run, cleanup
+###
+if ${lsim[0]} ; then
+
+echo "######"
+echo "## CONFIG Simulation"
+echo "######"
+
+sim_config
+
+fi # config
+
+#---
+
+if ${lsim[1]} ; then
+
+echo "######"
+echo "## RUN Simulation"
+echo "######"
+
+sim_run
+
+fi # run
+
+#---
+
+if ${lsim[2]} ; then
+
+echo "######"
+echo "## CLEANUP Simulation"
+echo "######"
+
+sim_cleanup
+
+fi # cleanup
+
+exit 0

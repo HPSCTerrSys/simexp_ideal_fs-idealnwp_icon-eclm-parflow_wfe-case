@@ -1,16 +1,15 @@
-# real_CORDEX-EUR-11u_iconv2.6.4-eclm-parflowv3.12
+# TSMP2 workflow-engine
 
 ## Introduction
 
-This simulation experiment make use of the TSMP2 workflow engine for running simulations.
+TSMP2 workflow engine for running simulations. The following examples and descriptions are based on a coupled climate simulation case over the EUR-11 domain, but the underlying idea applies to all types of simulations, such as LES, NWP, real and idealised cases. The workflow is applicable for any model combination within the TSMP2 framework realm.
 
 ## Setup the workflow
 
 ``` bash
-sim_id=real_CORDEX-EUR-11u_iconv2.6.4-eclm-parflowv3.12_wfe-case
 cd $PROJECT_DIR
-git clone --recurse-submodules https://github.com/HPSCTerrSys/simexp_$sim_id $sim_id
-wfe_dir=realpath $sim_id
+git clone --recurse-submodules https://github.com/HPSCTerrSys/TSMP2_workflow-engine
+wfe_dir=realpath tsmp2_workflow-engine
 ```
 
 ## Building the model
@@ -41,7 +40,7 @@ ln -s $SCRATCH_DIR/run run
 Adapt ressources and time in the setup-script. 
 ``` bash
 cd ctl
-vi setup_tsmp2.sh
+vi control_tsmp2.sh
 ```
 
 Activate a compute project
@@ -55,7 +54,7 @@ echo $BUDGET_ACCOUNTS
 
 Start simulation
 ``` bash
-sh setup_tsmp2.sh
+sh control_tsmp2.sh
 ```
 
 ## Contact

@@ -2,21 +2,11 @@
 #
 # function to configure tsmp2 simulations
 
-config_tsmp2_simulation(){
+sim_config(){
 
 echo "###"
 echo "# Configure Simulation"
 echo "###"
-
-# calculate needed variables TODO: take LC_NUMERIC into account
-ico_proc=$( printf %.0f $(echo "$ico_node * $npnode" | bc -l))
-clm_proc=$( printf %.0f $(echo "$clm_node * $npnode" | bc -l))
-pfl_proc_tmp=$( printf %.0f $(echo "$pfl_node * $npnode" | bc -l))
-pfl_proc_sqrt=$(echo "sqrt($pfl_proc_tmp)" | bc -l)
-pfl_procY=$((${pfl_proc_sqrt%.*} + (2 - ${pfl_proc_sqrt%.*} % 2))) # go to next num of 2
-pfl_procX=$(($pfl_proc_tmp/$pfl_procY))
-pfl_proc=$(($pfl_procY*$pfl_procX))
-unset pfl_proc_tmp pfl_proc_sqrt
 
 ###
 # Start replacing variables
@@ -31,25 +21,18 @@ echo "rundir: "$run_dir
 mkdir -pv $run_dir
 #rm -f $run_dir/* 
 
-# copy blueprints (changes need to be done in the "*sed*" files)
+# copy blueprints
 cp ${ctl_dir}/jobscripts/slm_multiprog_mapping_sed.conf ${run_dir}/slm_multiprog_mapping.conf
-cp ${ctl_dir}/jobscripts/${modelid}.job.jsc_sed ${run_dir}/tsmp2.job.jsc
 
 # slm_multiprog
 if [[ "${modelid}" != *icon* ]]; then
    sed -i "/__icon_pe__/d" ${run_dir}/slm_multiprog_mapping.conf
-   ico_node=0
-   ico_proc=0
 fi
 if [[ "${modelid}" != *eclm* ]]; then
    sed -i "/__clm_pe__/d" ${run_dir}/slm_multiprog_mapping.conf
-   clm_node=0
-   clm_proc=0
 fi
 if [[ "${modelid}" != *parflow* ]]; then
    sed -i "/__pfl_pe__/d" ${run_dir}/slm_multiprog_mapping.conf
-   pfl_node=0
-   pfl_proc=0
 fi
 sed -i "s/__icon_pe__/$(($ico_proc-1))/" ${run_dir}/slm_multiprog_mapping.conf
 sed -i "s/__clm_ps__/$(($ico_proc))/" ${run_dir}/slm_multiprog_mapping.conf
@@ -58,15 +41,16 @@ sed -i "s/__pfl_ps__/$(($ico_proc+$clm_proc))/" ${run_dir}/slm_multiprog_mapping
 sed -i "s/__pfl_pe__/$(($ico_proc+$clm_proc+$pfl_proc-1))/" ${run_dir}/slm_multiprog_mapping.conf
 
 # jobscript
-sed -i "s#__wallclock__#$wallclock#" ${run_dir}/tsmp2.job.jsc
-sed -i "s#__loadenvs__#$tsmp2_env#" ${run_dir}/tsmp2.job.jsc
-sed -i "s/__ntot_proc__/$(($ico_proc+$clm_proc+$pfl_proc))/" ${run_dir}/tsmp2.job.jsc
-sed -i "s/__ntot_node__/$(echo $(echo "$ico_node+$clm_node+$pfl_node" | bc -l) | sed -e 's/\.0*$//;s/\.[0-9]*$/ + 1/' | bc)/" ${run_dir}/tsmp2.job.jsc # ceil num of nodes
-sed -i "s#__run_dir__#$run_dir#" ${run_dir}/tsmp2.job.jsc
-sed -i "s/__partition__/$partition/" ${run_dir}/tsmp2.job.jsc
-sed -i "s/__account__/$account/" ${run_dir}/tsmp2.job.jsc
-sed -i "s/__npnode__/$npnode/" ${run_dir}/tsmp2.job.jsc
-sed -i "s#__parflow_bin__#$tsmp2_install_dir#" ${run_dir}/tsmp2.job.jsc
+#cp ${ctl_dir}/jobscripts/${modelid}.job.jsc_sed ${run_dir}/tsmp2.job.jsc
+#sed -i "s#__wallclock__#$sim_wallclock#" ${run_dir}/tsmp2.job.jsc
+#sed -i "s#__loadenvs__#$tsmp2_env#" ${run_dir}/tsmp2.job.jsc
+#sed -i "s/__ntot_proc__/$(($ico_proc+$clm_proc+$pfl_proc))/" ${run_dir}/tsmp2.job.jsc
+#sed -i "s/__ntot_node__/$(echo $(echo "$ico_node+$clm_node+$pfl_node" | bc -l) | sed -e 's/\.0*$//;s/\.[0-9]*$/ + 1/' | bc)/" ${run_dir}/tsmp2.job.jsc # ceil num of nodes
+#sed -i "s#__run_dir__#$run_dir#" ${run_dir}/tsmp2.job.jsc
+#sed -i "s/__partition__/$partition/" ${run_dir}/tsmp2.job.jsc
+#sed -i "s/__account__/$account/" ${run_dir}/tsmp2.job.jsc
+#sed -i "s/__npnode__/$npnode/" ${run_dir}/tsmp2.job.jsc
+#sed -i "s#__parflow_bin__#$tsmp2_install_dir#" ${run_dir}/tsmp2.job.jsc
 
 # change to run directory
 cd ${run_dir}
@@ -267,5 +251,4 @@ fi # if modelid == oasis
 echo "Configuration:"
 echo "MODEL_ID: "$MODEL_ID
 
-
-} # config_tsmp2_simulation
+} # sim_config

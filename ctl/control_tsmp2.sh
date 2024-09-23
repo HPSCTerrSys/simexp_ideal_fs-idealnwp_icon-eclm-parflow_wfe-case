@@ -3,7 +3,9 @@
 # for preprocessing, simulation, postprocessing, monitoring, cleaning/archiving
 #
 # Author(s): Stefan Poll (s.poll@fz-juelich.de)
-set -e
+
+# exit with error, export variables
+set -ae
 
 ###########################################
 ###
@@ -15,28 +17,35 @@ MODEL_ID=ICON-eCLM-ParFlow #ParFlow #ICON-eCLM #ICON-eCLM-ParFlow #ICON
 EXP_ID="eur-11u"
 CASE_ID="" # identifier for cases
 
-# main switches
-lpre=true
-lsim=true
-lpos=true
-lfin=true
+# main switches (PREprocessing, SIMulations, POSt-processing, VISualisation)
+lpre=( false false false ) # config, run, cleanup
+lsim=( true true true ) # config, run, cleanup
+lpos=( false false false ) # config, run, cleanup
+lvis=( false false false ) # config, run, cleanup
+
+# time information
+cpltsp_atmsfc=1800 # coupling time step, atm-sfc, eCLM timestep [sec]
+cpltsp_sfcss=1800 # coupling time step, sfc-ss, ParFlow timestep [sec]
+simlength="1 day" #"23 hours"
+startdate="2017-07-01T00:00Z" # ISO norm 8601
+numofsim=1 # number of simulations
 
 # user setting, leave empty for jsc machine defaults
+prevjobid="" # previous job-id, default leave empty
 npnode_u="" # number of cores per node
 partition_u="" # compute partition
 account_u=$BUDGET_ACCOUNTS # SET compute account. If not set, slts is taken
-wallclock=00:25:00 # needs to be format hh:mm:ss
+
+# wallclock
+pre_wallclock=00:05:00
+sim_wallclock=00:10:00 # needs to be format hh:mm:ss
+pos_wallclock=00:05:00
+vis_wallclock=00:05:00
 
 # file/directory pathes
 tsmp2_dir_u=$TSMP2_DIR
 tsmp2_install_dir_u="" # leave empty to take default
 tsmp2_env_u="" # leave empty to take default
-
-# time information
-cpltsp_atmsfc=1800 # coupling time step, atm-sfc, eCLM timestep
-cpltsp_sfcss=1800 # coupling time step, sfc-ss, ParFlow timestep
-simlength="1 day" #"23 hours"
-startdate="2017-07-01T00:00Z" # ISO norm 8601
 
 # number of nodes per component (<comp>_node will be set to zero, if not indicated in MODEL_ID)
 ico_node=3
@@ -55,16 +64,17 @@ echo "#####"
 
 modelid=$(echo ${MODEL_ID//"-"/} | tr '[:upper:]' '[:lower:]')
 if [ -n "${CASE_ID}" ]; then caseid+=${CASE_ID,,}"_"; fi
+expid=${EXP_ID,,}
 
 datep1=$(date -u -d -I "+${startdate} + ${simlength}")
 simlensec=$(( $(date -u -d "${datep1}" +%s)-$(date -u -d "${startdate}" +%s) ))
 simlenhr=$(($simlensec/3600 | bc -l))
 dateymd=$(date -u -d "${startdate}" +%Y%m%d)
-#datedir=$(date -u -d "${startdate}" +%Y%m%d%H)
+dateshort=$(date -u -d "${startdate}" +%Y%m%d%H%M%S)
 
 # set path
 ctl_dir=$(pwd)
-run_dir=$(realpath ${ctl_dir}/../run/${caseid}${modelid}_${dateymd}/)
+run_dir=$(realpath ${ctl_dir}/../run/sim_${caseid}${modelid}_${dateymd}/)
 #run_dir=$(realpath ${ctl_dir}/../run/${SYSTEMNAME}_${modelid}_${dateymd}/)
 nml_dir=$(realpath ${ctl_dir}/namelist/)
 geo_dir=$(realpath ${ctl_dir}/../geo/)
@@ -114,27 +124,36 @@ else
 tsmp2_env=$tsmp2_env_u
 fi
 
-###
-# Source environment
-###
-source ${tsmp2_env}
+jobgenstring="--export=ALL \
+	      --account=$account
+              --partition=$partition"
 
 ###
 # Import functions
 ###
-source ${ctl_dir}/config_preprocessing.sh
-source ${ctl_dir}/config_simulation.sh
-source ${ctl_dir}/config_postprocessing.sh
-source ${ctl_dir}/config_finishing.sh
+source ${ctl_dir}/utils_tsmp2.sh
+
+#source ${ctl_dir}/config_simulation.sh
+#source ${ctl_dir}/config_postprocessing.sh
+#source ${ctl_dir}/config_finishing.sh
 
 #####
 ## Preprocessing
 #####
 
-if $lpre ; then
+# check if any is true
+if [[ ${lpre[*]} =~ true ]]; then
+
+jobprestring="${jobgenstring} \
+              --job-name="${expid}_${caseid}pre_${dateshort}" \
+              --time=${pre_wallclock}
+              --output="${pre_dir}/%x_%j.out" \
+              --error="${pre_dir}/%x_%j.err" \
+              --nodes=1 \
+              --ntasks=${npnode}"
 
 # Configure TSMP2 preprocessing
-config_tsmp2_preprocessing
+sbatch ${jobprestring} ${ctl_dir}/pre_ctl/pre.job
 
 fi # $lpre
 
@@ -142,13 +161,30 @@ fi # $lpre
 ## Simulations
 ######
 
-if $lsim ; then
+# check if any is true
+if [[ ${lsim[*]} =~ true ]]; then
+
+# Calculate number of procs for TSMP2 simulation (utils)
+sim_calc_numberofproc
+
+#
+jobsimstring="${jobgenstring} \
+              --job-name="${expid}_${caseid}sim_${dateshort}" \
+	      --time=${sim_wallclock}
+              --output="${run_dir}/%x_%j.out" \
+              --error="${run_dir}/%x_%j.err" \
+	      --nodes=${tot_node} \
+	      --ntasks=${tot_proc}"
+
+# Submit to sim.job
+# echo "sbatch ${jobsimstring} ${ctl_dir}/sim_ctl/sim.job"
+sbatch ${jobsimstring} ${ctl_dir}/sim_ctl/sim.job
 
 # Configure TSMP2 run-directory
-config_tsmp2_simulation
+#sbatch ${jobaddstring} sim_ctl/config_tsmp2_simulation
 
 # Submit job
-sbatch ${run_dir}/tsmp2.job.jsc
+#sbatch ${jobaddstring} ${run_dir}/tsmp2.job.jsc
 
 fi # $lsim
 
@@ -156,23 +192,22 @@ fi # $lsim
 ## Postprocessing
 ######
 
-if $lpos ; then
+# check if any is true
+if [[ ${lpos[*]} =~ true ]]; then
 
 # Configure TSMP2 Postprocessing
-config_tsmp2_postprocessing
+jobprestring="${jobgenstring} \
+              --job-name="${expid}_${caseid}pos_${dateshort}" \
+              --time=${pos_wallclock}
+              --output="${pre_dir}/%x_%j.out" \
+              --error="${pre_dir}/%x_%j.err" \
+              --nodes=1 \
+              --ntasks=${npnode}"
+
+# Configure TSMP2 preprocessing
+sbatch ${jobprestring} ${ctl_dir}/pos_ctl/pos.job
 
 fi # $lpos
-
-######
-## Finishing
-######
-
-if $lfin ; then
-
-# Configure TSMP2 Postprocessing
-config_tsmp2_finishing
-
-fi # $lfin
 
 
 exit 0

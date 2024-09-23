@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+###
+# Import functions
+###
+source ${ctl_dir}/pre_ctl/pre_config.sh
+source ${ctl_dir}/pre_ctl/pre_run.sh
+source ${ctl_dir}/pre_ctl/pre_cleanup.sh
+
+###
+# source environment
+###
+source ${tsmp2_env} # should be changed to pre-processing env.
+
+###
+# Start config, run, cleanup
+###
+if ${lpre[0]} ; then
+
+echo "######"
+echo "## CONFIG Preprocessing"
+echo "######"
+
+pre_config
+
+fi # config
+
+#---
+
+if ${lpre[1]} ; then
+
+echo "######"
+echo "## RUN Preprocessing"
+echo "######"
+
+pre_run
+
+fi # run
+
+#---
+
+if ${lpre[2]} ; then
+
+echo "######"
+echo "## CLEANUP Preprocessing"
+echo "######"
+
+pre_cleanup
+
+fi # cleanup
+
+exit 0
