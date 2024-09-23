@@ -76,9 +76,10 @@ dateshort=$(date -u -d "${startdate}" +%Y%m%d%H%M%S)
 ctl_dir=$(pwd)
 run_dir=$(realpath ${ctl_dir}/../run/sim_${caseid}${modelid}_${dateymd}/)
 #run_dir=$(realpath ${ctl_dir}/../run/${SYSTEMNAME}_${modelid}_${dateymd}/)
-nml_dir=$(realpath ${ctl_dir}/namelist/)
-geo_dir=$(realpath ${ctl_dir}/../geo/)
-pre_dir=$(realpath ${ctl_dir}/../pre/)
+nml_dir=$(realpath ${ctl_dir}/../nml/)
+geo_dir=$(realpath ${ctl_dir}/../dta/geo/)
+frc_dir=$(realpath ${ctl_dir}/../dta/forcing/)
+pre_dir=$(realpath ${ctl_dir}/../run/pre_${caseid}${modelid}_${dateymd}/)
 
 # select machine defaults, if not set by user
 if ( [ -z $npnode_u ] | [ -z $partition_u ] ); then

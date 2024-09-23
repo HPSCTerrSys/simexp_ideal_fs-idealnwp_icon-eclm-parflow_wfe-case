@@ -22,7 +22,7 @@ mkdir -pv $run_dir
 #rm -f $run_dir/* 
 
 # copy blueprints
-cp ${ctl_dir}/jobscripts/slm_multiprog_mapping_sed.conf ${run_dir}/slm_multiprog_mapping.conf
+cp ${ctl_dir}/conf/slm_multiprog_mapping_sed.conf ${run_dir}/slm_multiprog_mapping.conf
 
 # slm_multiprog
 if [[ "${modelid}" != *icon* ]]; then
@@ -60,7 +60,7 @@ cd ${run_dir}
 ####################
 if [[ "${modelid}" == *icon* ]]; then
 
-  icon_latbc_dir=${pre_dir}/icon/latbc/$(date -u -d "${startdate}" +%Y%m)
+  icon_latbc_dir=${frc_dir}/icon/latbc/$(date -u -d "${startdate}" +%Y%m)
 
 # link executeable (will be replaced with copy in production)
 #  ln -sf $tsmp2_install_dir/bin/icon icon
@@ -164,7 +164,7 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm.streams.txt*
 #  sed -i "s#topodata_0.9x1.25_USGS_070110_stream_c151201.nc#topodata_0.9x1.25_zeroed.nc#" datm.streams.txt.topo.observed
   # forcing
-  sed -i "s#__forcdir__#${pre_dir}/eclm/forcing/#" datm.streams.txt.CLMCRUNCEPv7.*
+  sed -i "s#__forcdir__#${frc_dir}/eclm/forcing/#" datm.streams.txt.CLMCRUNCEPv7.*
   sed -i "s#__forclist__#${forcdatelist}#" datm.streams.txt.CLMCRUNCEPv7.*
   sed -i "s#__domainfile_clm__#$domainfile_clm#" datm.streams.txt.CLMCRUNCEPv7.*
 fi # if modelid == CLM
@@ -181,7 +181,7 @@ if [[ "${modelid}" == *parflow* ]]; then
 #  
   parflow_tsp=$(echo "$cpltsp_sfcss / 3600" | bc -l)
   parflow_base=0.0025
-#  parflow_inifile=${pre_dir}/parflow/ini/ic_press.pfb
+#  parflow_inifile=${frc_dir}/parflow/ini/ic_press.pfb
 
 # copy namelist
   cp ${nml_dir}/parflow/ascii2pfb_slopes.tcl ascii2pfb_slopes.tcl

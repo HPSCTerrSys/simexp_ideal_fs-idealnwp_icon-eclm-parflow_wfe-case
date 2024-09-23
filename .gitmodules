@@ -1,36 +1,36 @@
-[submodule "ctl/namelist/eclm"]
-	path = ctl/namelist/eclm
+[submodule "nml/eclm"]
+	path = nml/eclm
 	url = https://github.com/HPSCTerrSys/namelist_eCLM_bgcmode-template.git
 	branch = master
-[submodule "ctl/namelist/icon"]
-	path = ctl/namelist/icon
+[submodule "nml/icon"]
+	path = nml/icon
 	url = https://github.com/HPSCTerrSys/namelist_ICON_CORDEX-EUR-11u.git
 	branch = master
-[submodule "ctl/namelist/parflow"]
-	path = ctl/namelist/parflow
+[submodule "nml/parflow"]
+	path = nml/parflow
 	url = https://github.com/HPSCTerrSys/namelist_ParFlow_CORDEX-EUR-11u.git
 	branch = master
-[submodule "ctl/namelist/oasis"]
-	path = ctl/namelist/oasis
+[submodule "nml/oasis"]
+	path = nml/oasis
 	url = https://github.com/HPSCTerrSys/namelist_oasis3-mct_TSMP2-real-template.git
 	branch = master
 [submodule "src/TSMP2"]
         path = src/TSMP2
         url = https://github.com/HPSCTerrSys/TSMP2.git
         branch = dev_frontend
-[submodule "geo/icon"]
-	path = geo/icon
+[submodule "dta/geo/icon"]
+	path = dta/geo/icon
 	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_icon_cordex-eur-11u.git
 	branch = master
-[submodule "geo/oasis"]
-	path = geo/oasis
+[submodule "dta/geo/oasis"]
+	path = dta/geo/oasis
 	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_oasis3-mct_cordex-eur-11u.git
 	branch = master
-[submodule "geo/eclm"]
-	path = geo/eclm
+[submodule "dta/geo/eclm"]
+	path = dta/geo/eclm
 	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_eclm_cordex-eur-11u.git
 	branch = master
-[submodule "geo/parflow"]
-	path = geo/parflow
+[submodule "dta/geo/parflow"]
+	path = dta/geo/parflow
 	url = https://icg4geo.icg.kfa-juelich.de/ExternalReposPublic/tsmp2-static-files/extpar_parflow_cordex-eur-11u.git
 	branch = master
