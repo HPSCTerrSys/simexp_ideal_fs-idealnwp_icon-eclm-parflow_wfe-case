@@ -3,11 +3,11 @@
 sim_run(){
 
 #LOADENVS=__loadenvs__
-#CASE_DIR=__run_dir__
+#CASE_DIR=__sim_dir__
 #export PARFLOW_DIR=__parflow_bin__
 
 LOADENVS=${tsmp2_env}
-CASE_DIR=${run_dir}
+CASE_DIR=${sim_dir}
 
 
 if [[ ! -f $LOADENVS || -z "$LOADENVS" ]]; then

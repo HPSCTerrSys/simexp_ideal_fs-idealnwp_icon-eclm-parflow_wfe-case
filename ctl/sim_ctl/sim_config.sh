@@ -17,43 +17,43 @@ echo "###"
 ####################
 
 # create and clean-up run-dir 
-echo "rundir: "$run_dir
-mkdir -pv $run_dir
-#rm -f $run_dir/* 
+echo "rundir: "$sim_dir
+mkdir -pv $sim_dir
+#rm -f ${sim_dir:?}
 
 # copy blueprints
-cp ${ctl_dir}/conf/slm_multiprog_mapping_sed.conf ${run_dir}/slm_multiprog_mapping.conf
+cp ${ctl_dir}/conf/slm_multiprog_mapping_sed.conf ${sim_dir}/slm_multiprog_mapping.conf
 
 # slm_multiprog
 if [[ "${modelid}" != *icon* ]]; then
-   sed -i "/__icon_pe__/d" ${run_dir}/slm_multiprog_mapping.conf
+   sed -i "/__icon_pe__/d" ${sim_dir}/slm_multiprog_mapping.conf
 fi
 if [[ "${modelid}" != *eclm* ]]; then
-   sed -i "/__clm_pe__/d" ${run_dir}/slm_multiprog_mapping.conf
+   sed -i "/__clm_pe__/d" ${sim_dir}/slm_multiprog_mapping.conf
 fi
 if [[ "${modelid}" != *parflow* ]]; then
-   sed -i "/__pfl_pe__/d" ${run_dir}/slm_multiprog_mapping.conf
+   sed -i "/__pfl_pe__/d" ${sim_dir}/slm_multiprog_mapping.conf
 fi
-sed -i "s/__icon_pe__/$(($ico_proc-1))/" ${run_dir}/slm_multiprog_mapping.conf
-sed -i "s/__clm_ps__/$(($ico_proc))/" ${run_dir}/slm_multiprog_mapping.conf
-sed -i "s/__clm_pe__/$(($ico_proc+$clm_proc-1))/" ${run_dir}/slm_multiprog_mapping.conf
-sed -i "s/__pfl_ps__/$(($ico_proc+$clm_proc))/" ${run_dir}/slm_multiprog_mapping.conf
-sed -i "s/__pfl_pe__/$(($ico_proc+$clm_proc+$pfl_proc-1))/" ${run_dir}/slm_multiprog_mapping.conf
+sed -i "s/__icon_pe__/$(($ico_proc-1))/" ${sim_dir}/slm_multiprog_mapping.conf
+sed -i "s/__clm_ps__/$(($ico_proc))/" ${sim_dir}/slm_multiprog_mapping.conf
+sed -i "s/__clm_pe__/$(($ico_proc+$clm_proc-1))/" ${sim_dir}/slm_multiprog_mapping.conf
+sed -i "s/__pfl_ps__/$(($ico_proc+$clm_proc))/" ${sim_dir}/slm_multiprog_mapping.conf
+sed -i "s/__pfl_pe__/$(($ico_proc+$clm_proc+$pfl_proc-1))/" ${sim_dir}/slm_multiprog_mapping.conf
 
 # jobscript
-#cp ${ctl_dir}/jobscripts/${modelid}.job.jsc_sed ${run_dir}/tsmp2.job.jsc
-#sed -i "s#__wallclock__#$sim_wallclock#" ${run_dir}/tsmp2.job.jsc
-#sed -i "s#__loadenvs__#$tsmp2_env#" ${run_dir}/tsmp2.job.jsc
-#sed -i "s/__ntot_proc__/$(($ico_proc+$clm_proc+$pfl_proc))/" ${run_dir}/tsmp2.job.jsc
-#sed -i "s/__ntot_node__/$(echo $(echo "$ico_node+$clm_node+$pfl_node" | bc -l) | sed -e 's/\.0*$//;s/\.[0-9]*$/ + 1/' | bc)/" ${run_dir}/tsmp2.job.jsc # ceil num of nodes
-#sed -i "s#__run_dir__#$run_dir#" ${run_dir}/tsmp2.job.jsc
-#sed -i "s/__partition__/$partition/" ${run_dir}/tsmp2.job.jsc
-#sed -i "s/__account__/$account/" ${run_dir}/tsmp2.job.jsc
-#sed -i "s/__npnode__/$npnode/" ${run_dir}/tsmp2.job.jsc
-#sed -i "s#__parflow_bin__#$tsmp2_install_dir#" ${run_dir}/tsmp2.job.jsc
+#cp ${ctl_dir}/jobscripts/${modelid}.job.jsc_sed ${sim_dir}/tsmp2.job.jsc
+#sed -i "s#__wallclock__#$sim_wallclock#" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s#__loadenvs__#$tsmp2_env#" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s/__ntot_proc__/$(($ico_proc+$clm_proc+$pfl_proc))/" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s/__ntot_node__/$(echo $(echo "$ico_node+$clm_node+$pfl_node" | bc -l) | sed -e 's/\.0*$//;s/\.[0-9]*$/ + 1/' | bc)/" ${sim_dir}/tsmp2.job.jsc # ceil num of nodes
+#sed -i "s#__sim_dir__#$sim_dir#" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s/__partition__/$partition/" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s/__account__/$account/" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s/__npnode__/$npnode/" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s#__parflow_bin__#$tsmp2_install_dir#" ${sim_dir}/tsmp2.job.jsc
 
 # change to run directory
-cd ${run_dir}
+cd ${sim_dir}
 
 ####################
 # ICON

@@ -134,8 +134,8 @@ while [ $icounter -lt $numsimstep ]
 do
 
 # set run path
-run_dir=$(realpath ${ctl_dir}/../run/sim_${caseid}${modelid}_${dateymd}/)
-#run_dir=$(realpath ${ctl_dir}/../run/${SYSTEMNAME}_${modelid}_${dateymd}/)
+sim_dir=$(realpath ${ctl_dir}/../run/sim_${caseid}${modelid}_${dateymd}/)
+#sim_dir=$(realpath ${ctl_dir}/../run/${SYSTEMNAME}_${modelid}_${dateymd}/)
 pre_dir=$(realpath ${ctl_dir}/../run/pre_${caseid}${modelid}_${dateymd}/)
 
 # time information
@@ -183,8 +183,8 @@ sim_calc_numberofproc
 jobsimstring="${jobgenstring} \
               --job-name="${expid}_${caseid}sim_${dateshort}" \
 	      --time=${sim_wallclock}
-              --output="${run_dir}/%x_%j.out" \
-              --error="${run_dir}/%x_%j.err" \
+              --output="${sim_dir}/%x_%j.out" \
+              --error="${sim_dir}/%x_%j.err" \
 	      --nodes=${tot_node} \
 	      --ntasks=${tot_proc}"
 
