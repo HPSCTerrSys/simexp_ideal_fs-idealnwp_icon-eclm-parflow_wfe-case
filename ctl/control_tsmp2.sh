@@ -164,7 +164,7 @@ jobprestring="${jobgenstring} \
               --nodes=1 \
               --ntasks=${npnode}"
 
-# Configure TSMP2 preprocessing
+# Submit to pre.job
 sbatch ${jobprestring} ${ctl_dir}/pre_ctl/pre.job
 
 fi # $lpre
@@ -202,16 +202,16 @@ fi # $lsim
 if [[ ${lpos[*]} =~ true ]]; then
 
 # Configure TSMP2 Postprocessing
-jobprestring="${jobgenstring} \
+jobposstring="${jobgenstring} \
               --job-name="${expid}_${caseid}pos_${dateshort}" \
               --time=${pos_wallclock}
-              --output="${pre_dir}/%x_%j.out" \
-              --error="${pre_dir}/%x_%j.err" \
+              --output="${pos_dir}/%x_%j.out" \
+              --error="${pos_dir}/%x_%j.err" \
               --nodes=1 \
               --ntasks=${npnode}"
 
-# Configure TSMP2 preprocessing
-sbatch ${jobprestring} ${ctl_dir}/pos_ctl/pos.job
+# Submit to pos.job
+sbatch ${jobposstring} ${ctl_dir}/pos_ctl/pos.job
 
 fi # $lpos
 
