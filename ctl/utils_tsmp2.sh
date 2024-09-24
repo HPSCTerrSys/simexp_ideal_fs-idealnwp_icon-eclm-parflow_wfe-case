@@ -17,8 +17,6 @@ pfl_proc_sqrt=$(echo "sqrt($pfl_proc_tmp)" | bc -l)
 pfl_procY=$((${pfl_proc_sqrt%.*} + (2 - ${pfl_proc_sqrt%.*} % 2))) # go to next num of 2
 pfl_procX=$(($pfl_proc_tmp/$pfl_procY))
 pfl_proc=$(($pfl_procY*$pfl_procX))
-tot_proc=$(($ico_proc+$clm_proc+$pfl_proc))
-tot_node=$(echo $(echo "$ico_node+$clm_node+$pfl_node" | bc -l) | sed -e 's/\.0*$//;s/\.[0-9]*$/ + 1/' | bc) # ceiling
 unset pfl_proc_tmp pfl_proc_sqrt
 
 # set <comp>_proc to zero based on modelid
@@ -34,5 +32,8 @@ if [[ "${modelid}" != *parflow* ]]; then
    pfl_node=0
    pfl_proc=0
 fi
+
+tot_proc=$(($ico_proc+$clm_proc+$pfl_proc))
+tot_node=$(echo $(echo "$ico_node+$clm_node+$pfl_node" | bc -l) | sed -e 's/\.0*$//;s/\.[0-9]*$/ + 1/' | bc) # ceiling
 
 } # sim_calc_numberofproc
