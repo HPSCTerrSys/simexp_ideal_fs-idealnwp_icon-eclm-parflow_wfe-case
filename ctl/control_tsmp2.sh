@@ -28,7 +28,7 @@ cpltsp_atmsfc=1800 # coupling time step, atm-sfc, eCLM timestep [sec]
 cpltsp_sfcss=1800 # coupling time step, sfc-ss, ParFlow timestep [sec]
 simlength="1 day" #"23 hours"
 startdate="2017-07-01T00:00Z" # ISO norm 8601
-numofsim=1 # number of simulations
+numsimstep=1 # number of simulation steps, simulation period = numsimstep * simlength
 
 # user setting, leave empty for jsc machine defaults
 prevjobid="" # previous job-id, default leave empty
@@ -62,24 +62,16 @@ echo "#####"
 echo "## Start TSMP WFE"
 echo "#####"
 
+# set modelid, caseid and expid
 modelid=$(echo ${MODEL_ID//"-"/} | tr '[:upper:]' '[:lower:]')
 if [ -n "${CASE_ID}" ]; then caseid+=${CASE_ID,,}"_"; fi
 expid=${EXP_ID,,}
 
-datep1=$(date -u -d -I "+${startdate} + ${simlength}")
-simlensec=$(( $(date -u -d "${datep1}" +%s)-$(date -u -d "${startdate}" +%s) ))
-simlenhr=$(($simlensec/3600 | bc -l))
-dateymd=$(date -u -d "${startdate}" +%Y%m%d)
-dateshort=$(date -u -d "${startdate}" +%Y%m%d%H%M%S)
-
-# set path
+# set path (not run-dir)
 ctl_dir=$(pwd)
-run_dir=$(realpath ${ctl_dir}/../run/sim_${caseid}${modelid}_${dateymd}/)
-#run_dir=$(realpath ${ctl_dir}/../run/${SYSTEMNAME}_${modelid}_${dateymd}/)
 nml_dir=$(realpath ${ctl_dir}/../nml/)
 geo_dir=$(realpath ${ctl_dir}/../dta/geo/)
 frc_dir=$(realpath ${ctl_dir}/../dta/forcing/)
-pre_dir=$(realpath ${ctl_dir}/../run/pre_${caseid}${modelid}_${dateymd}/)
 
 # select machine defaults, if not set by user
 if ( [ -z $npnode_u ] | [ -z $partition_u ] ); then
@@ -125,18 +117,37 @@ else
 tsmp2_env=$tsmp2_env_u
 fi
 
+# Import function
+source ${ctl_dir}/utils_tsmp2.sh
+
+# generic sbatch string
 jobgenstring="--export=ALL \
 	      --account=$account
               --partition=$partition"
 
 ###
-# Import functions
+# Loop over time period
 ###
-source ${ctl_dir}/utils_tsmp2.sh
 
-#source ${ctl_dir}/config_simulation.sh
-#source ${ctl_dir}/config_postprocessing.sh
-#source ${ctl_dir}/config_finishing.sh
+icounter=0
+while [ $icounter -lt $numsimstep ]
+do
+
+# set run path
+run_dir=$(realpath ${ctl_dir}/../run/sim_${caseid}${modelid}_${dateymd}/)
+#run_dir=$(realpath ${ctl_dir}/../run/${SYSTEMNAME}_${modelid}_${dateymd}/)
+pre_dir=$(realpath ${ctl_dir}/../run/pre_${caseid}${modelid}_${dateymd}/)
+
+# time information
+datep1=$(date -u -d -I "+${startdate} + ${simlength}")
+simlensec=$(( $(date -u -d "${datep1}" +%s)-$(date -u -d "${startdate}" +%s) ))
+simlenhr=$(($simlensec/3600 | bc -l))
+dateymd=$(date -u -d "${startdate}" +%Y%m%d)
+dateshort=$(date -u -d "${startdate}" +%Y%m%d%H%M%S)
+
+echo "==="
+echo "Date: $dateshort"
+echo "==="
 
 #####
 ## Preprocessing
@@ -181,12 +192,6 @@ jobsimstring="${jobgenstring} \
 # echo "sbatch ${jobsimstring} ${ctl_dir}/sim_ctl/sim.job"
 sbatch ${jobsimstring} ${ctl_dir}/sim_ctl/sim.job
 
-# Configure TSMP2 run-directory
-#sbatch ${jobaddstring} sim_ctl/config_tsmp2_simulation
-
-# Submit job
-#sbatch ${jobaddstring} ${run_dir}/tsmp2.job.jsc
-
 fi # $lsim
 
 ######
@@ -210,5 +215,14 @@ sbatch ${jobprestring} ${ctl_dir}/pos_ctl/pos.job
 
 fi # $lpos
 
+###
+# Loop increment
+###
+
+startdate=$(date -u -d "${startdate} +${simlength}" "+%Y-%m-%dT%H:%MZ")
+icounter=$((icounter+1))
+#(( icounter++ ))
+
+done # icounter
 
 exit 0
