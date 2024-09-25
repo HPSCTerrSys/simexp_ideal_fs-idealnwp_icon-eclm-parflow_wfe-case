@@ -133,17 +133,17 @@ icounter=0
 while [ $icounter -lt $numsimstep ]
 do
 
-# set run path
-sim_dir=$(realpath ${ctl_dir}/../run/sim_${caseid}${modelid}_${dateymd}/)
-#sim_dir=$(realpath ${ctl_dir}/../run/${SYSTEMNAME}_${modelid}_${dateymd}/)
-pre_dir=$(realpath ${ctl_dir}/../run/pre_${caseid}${modelid}_${dateymd}/)
-
 # time information
 datep1=$(date -u -d -I "+${startdate} + ${simlength}")
 simlensec=$(( $(date -u -d "${datep1}" +%s)-$(date -u -d "${startdate}" +%s) ))
 simlenhr=$(($simlensec/3600 | bc -l))
 dateymd=$(date -u -d "${startdate}" +%Y%m%d)
 dateshort=$(date -u -d "${startdate}" +%Y%m%d%H%M%S)
+
+# set run path
+sim_dir=$(realpath ${ctl_dir}/../run/sim_${caseid}${modelid}_${dateymd}/)
+#sim_dir=$(realpath ${ctl_dir}/../run/${SYSTEMNAME}_${modelid}_${dateymd}/)
+pre_dir=$(realpath ${ctl_dir}/../run/pre_${caseid}${modelid}_${dateymd}/)
 
 echo "==="
 echo "Date: $dateshort"
