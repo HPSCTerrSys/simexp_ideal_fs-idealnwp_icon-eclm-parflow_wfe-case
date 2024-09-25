@@ -68,7 +68,7 @@ if [ -n "${CASE_ID}" ]; then caseid+=${CASE_ID,,}"_"; fi
 expid=${EXP_ID,,}
 
 # set path (not run-dir)
-ctl_dir=$(pwd)
+ctl_dir=$(dirname $(realpath ${BASH_SOURCE:-$0}))
 nml_dir=$(realpath ${ctl_dir}/../nml/)
 geo_dir=$(realpath ${ctl_dir}/../dta/geo/)
 frc_dir=$(realpath ${ctl_dir}/../dta/forcing/)
