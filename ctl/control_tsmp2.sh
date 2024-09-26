@@ -38,7 +38,7 @@ account_u=$BUDGET_ACCOUNTS # SET compute account. If not set, slts is taken
 
 # wallclock
 pre_wallclock=00:05:00
-sim_wallclock=00:10:00 # needs to be format hh:mm:ss
+sim_wallclock=00:25:00 # needs to be format hh:mm:ss
 pos_wallclock=00:05:00
 vis_wallclock=00:05:00
 
@@ -72,6 +72,10 @@ ctl_dir=$(dirname $(realpath ${BASH_SOURCE:-$0}))
 nml_dir=$(realpath ${ctl_dir}/../nml/)
 geo_dir=$(realpath ${ctl_dir}/../dta/geo/)
 frc_dir=$(realpath ${ctl_dir}/../dta/forcing/)
+log_dir=$(realpath ${ctl_dir}/logs/)
+echo "ctl_dir: "${ctl_dir}
+echo "nml_dir: "${nml_dir}
+echo "geo_dir: "${geo_dir}
 
 # select machine defaults, if not set by user
 if ( [ -z $npnode_u ] | [ -z $partition_u ] ); then
@@ -158,14 +162,18 @@ if [[ ${lpre[*]} =~ true ]]; then
 
 jobprestring="${jobgenstring} \
               --job-name="${expid}_${caseid}pre_${dateshort}" \
-              --time=${pre_wallclock}
-              --output="${pre_dir}/%x_%j.out" \
-              --error="${pre_dir}/%x_%j.err" \
+              --time=${pre_wallclock} \
+              --output="${log_dir}/%x_%j.out" \
+              --error="${log_dir}/%x_%j.err" \
               --nodes=1 \
               --ntasks=${npnode}"
 
 # Submit to pre.job
-sbatch ${jobprestring} ${ctl_dir}/pre_ctl/pre.job
+submit_pre=$(sbatch ${jobprestring} ${ctl_dir}/pre_ctl/pre.job 2>&1)
+echo $submit_pre" for preprocessing"
+
+# get jobid
+pre_id=$(echo $submit_pre | awk 'END{print $(NF)}')
 
 fi # $lpre
 
@@ -179,18 +187,36 @@ if [[ ${lsim[*]} =~ true ]]; then
 # Calculate number of procs for TSMP2 simulation (utils)
 sim_calc_numberofproc
 
+# set dependency
+if ${lpre[2]} ; then
+  dependencystring="afterok:${pre_id}"
+  if [[ $icounter -gt 0 ]] ; then
+    dependencystring="${dependencystring}:${sim_id}"
+  fi
+else
+  if [[ $icounter -gt 0 ]] ; then
+    dependencystring="afterok:${sim_id}"
+  else
+    dependencystring=$prevjobid
+  fi
+fi # lpre
+
 #
 jobsimstring="${jobgenstring} \
               --job-name="${expid}_${caseid}sim_${dateshort}" \
-	      --time=${sim_wallclock}
-              --output="${sim_dir}/%x_%j.out" \
-              --error="${sim_dir}/%x_%j.err" \
+	      --dependency=${dependencystring} \
+	      --time=${sim_wallclock} \
+              --output="${log_dir}/%x_%j.out" \
+              --error="${log_dir}/%x_%j.err" \
 	      --nodes=${tot_node} \
 	      --ntasks=${tot_proc}"
 
 # Submit to sim.job
-# echo "sbatch ${jobsimstring} ${ctl_dir}/sim_ctl/sim.job"
-sbatch ${jobsimstring} ${ctl_dir}/sim_ctl/sim.job
+submit_sim=$(sbatch ${jobsimstring} ${ctl_dir}/sim_ctl/sim.job 2>&1)
+echo $submit_sim" for simulation"
+
+# get jobid
+sim_id=$(echo $submit_sim | awk 'END{print $(NF)}')
 
 fi # $lsim
 
@@ -201,17 +227,28 @@ fi # $lsim
 # check if any is true
 if [[ ${lpos[*]} =~ true ]]; then
 
+# set dependency
+if ${lsim[2]} ; then
+  dependencystring="afterok:${sim_id}"
+else
+  dependencystring=$prevjobid
+fi
+
 # Configure TSMP2 Postprocessing
 jobposstring="${jobgenstring} \
               --job-name="${expid}_${caseid}pos_${dateshort}" \
-              --time=${pos_wallclock}
-              --output="${pos_dir}/%x_%j.out" \
-              --error="${pos_dir}/%x_%j.err" \
+              --time=${pos_wallclock} \
+              --output="${log_dir}/%x_%j.out" \
+              --error="${log_dir}/%x_%j.err" \
               --nodes=1 \
               --ntasks=${npnode}"
 
 # Submit to pos.job
-sbatch ${jobposstring} ${ctl_dir}/pos_ctl/pos.job
+submit_pos=$(sbatch ${jobposstring} ${ctl_dir}/pos_ctl/pos.job 2>&1)
+echo $submit_pos" for postprocessing"
+
+# get jobid
+pos_id=$(echo $submit_pos | awk 'END{print $(NF)}')
 
 fi # $lpos
 
