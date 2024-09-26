@@ -52,6 +52,9 @@ ico_node=3
 clm_node=1
 pfl_node=2
 
+# DebugMode
+debugmode=false
+
 ###########################################
 
 ###
@@ -211,9 +214,13 @@ jobsimstring="${jobgenstring} \
 	      --nodes=${tot_node} \
 	      --ntasks=${tot_proc}"
 
-# Submit to sim.job
-submit_sim=$(sbatch ${jobsimstring} ${ctl_dir}/sim_ctl/sim.job 2>&1)
-echo $submit_sim" for simulation"
+if (! ${debugmode}) ; then
+  # Submit to sim.job
+  submit_sim=$(sbatch ${jobsimstring} ${ctl_dir}/sim_ctl/sim.job 2>&1)
+  echo $submit_sim" for simulation"
+else
+  source ${ctl_dir}/sim_ctl/sim.job
+fi
 
 # get jobid
 sim_id=$(echo $submit_sim | awk 'END{print $(NF)}')

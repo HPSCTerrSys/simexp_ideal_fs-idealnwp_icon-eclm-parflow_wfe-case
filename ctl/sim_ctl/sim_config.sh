@@ -40,18 +40,6 @@ sed -i "s/__clm_pe__/$(($ico_proc+$clm_proc-1))/" ${sim_dir}/slm_multiprog_mappi
 sed -i "s/__pfl_ps__/$(($ico_proc+$clm_proc))/" ${sim_dir}/slm_multiprog_mapping.conf
 sed -i "s/__pfl_pe__/$(($ico_proc+$clm_proc+$pfl_proc-1))/" ${sim_dir}/slm_multiprog_mapping.conf
 
-# jobscript
-#cp ${ctl_dir}/jobscripts/${modelid}.job.jsc_sed ${sim_dir}/tsmp2.job.jsc
-#sed -i "s#__wallclock__#$sim_wallclock#" ${sim_dir}/tsmp2.job.jsc
-#sed -i "s#__loadenvs__#$tsmp2_env#" ${sim_dir}/tsmp2.job.jsc
-#sed -i "s/__ntot_proc__/$(($ico_proc+$clm_proc+$pfl_proc))/" ${sim_dir}/tsmp2.job.jsc
-#sed -i "s/__ntot_node__/$(echo $(echo "$ico_node+$clm_node+$pfl_node" | bc -l) | sed -e 's/\.0*$//;s/\.[0-9]*$/ + 1/' | bc)/" ${sim_dir}/tsmp2.job.jsc # ceil num of nodes
-#sed -i "s#__sim_dir__#$sim_dir#" ${sim_dir}/tsmp2.job.jsc
-#sed -i "s/__partition__/$partition/" ${sim_dir}/tsmp2.job.jsc
-#sed -i "s/__account__/$account/" ${sim_dir}/tsmp2.job.jsc
-#sed -i "s/__npnode__/$npnode/" ${sim_dir}/tsmp2.job.jsc
-#sed -i "s#__parflow_bin__#$tsmp2_install_dir#" ${sim_dir}/tsmp2.job.jsc
-
 # change to run directory
 cd ${sim_dir}
 
@@ -247,6 +235,39 @@ if [[ "${MODEL_ID}" == *-* ]]; then
   fi
 
 fi # if modelid == oasis
+
+if ${debugmode}; then
+
+# create job submission script (tsmp2.job)
+echo "#!/usr/bin/env bash" > tsmp2.job
+echo "#SBATCH ${jobsimstring//[$'\t\r\n']}" >> tsmp2.job
+
+# add modelid, which is needed
+echo "" >> tsmp2.job
+echo "modelid=${modelid}" >> tsmp2.job
+
+# cat submission commands
+cat ${ctl_dir}/sim_ctl/sim_run.sh | tail -n +2 >> tsmp2.job # start from line 2
+
+sed -i "s/sim_run(){//" tsmp2.job
+sed -i "s/} # sim_run//" tsmp2.job
+sed -i "s#\(LOADENVS=\).*#\1${tsmp2_env}#" tsmp2.job
+sed -i "s#\(CASE_DIR=\).*#\1${sim_dir}#" tsmp2.job
+sed -i "s#\(PARFLOW_DIR=\).*#\1${tsmp2_install_dir}#" tsmp2.job
+
+# jobscript
+#cp ${ctl_dir}/jobscripts/${modelid}.job.jsc_sed ${sim_dir}/tsmp2.job.jsc
+#sed -i "s#__wallclock__#$sim_wallclock#" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s#__loadenvs__#$tsmp2_env#" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s/__ntot_proc__/$(($ico_proc+$clm_proc+$pfl_proc))/" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s/__ntot_node__/$(echo $(echo "$ico_node+$clm_node+$pfl_node" | bc -l) | sed -e 's/\.0*$//;s/\.[0-9]*$/ + 1/' | bc)/" ${sim_dir}/tsmp2.job.jsc # ceil num of nodes
+#sed -i "s#__sim_dir__#$sim_dir#" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s/__partition__/$partition/" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s/__account__/$account/" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s/__npnode__/$npnode/" ${sim_dir}/tsmp2.job.jsc
+#sed -i "s#__parflow_bin__#$tsmp2_install_dir#" ${sim_dir}/tsmp2.job.js
+
+fi # debugmode
 
 echo "Configuration:"
 echo "MODEL_ID: "$MODEL_ID
