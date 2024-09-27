@@ -2,10 +2,6 @@
 
 sim_run(){
 
-#LOADENVS=__loadenvs__
-#CASE_DIR=__sim_dir__
-#export PARFLOW_DIR=__parflow_bin__
-
 LOADENVS=${tsmp2_env}
 CASE_DIR=${sim_dir}
 
@@ -50,10 +46,10 @@ fi # parflow
 
 # Run model
 TIME_START=$(date +%s)
-echo ">>> TSMP2 started at $(date +%H:%M:%S)"
+echo ">>> ${modelid} started at $(date +%H:%M:%S)"
 srun --multi-prog slm_multiprog_mapping.conf
 TIME_END=$(date +%s)
-echo ">>> TSMP2 finished at $(date +%H:%M:%S)"
-echo ">>> TSMP2 runtime: $(date -u -d "0 $TIME_END sec - $TIME_START sec" +"%H:%M:%S")"
+echo ">>> ${modelid} finished at $(date +%H:%M:%S)"
+echo ">>> ${modelid} runtime: $(date -u -d "0 $TIME_END sec - $TIME_START sec" +"%H:%M:%S")"
 
 } # sim_run

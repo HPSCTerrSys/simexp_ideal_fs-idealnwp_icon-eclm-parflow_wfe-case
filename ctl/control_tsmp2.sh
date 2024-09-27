@@ -5,7 +5,7 @@
 # Author(s): Stefan Poll (s.poll@fz-juelich.de)
 
 # exit with error, export variables
-set -ae
+set -ae pipefail
 
 ###########################################
 ###
@@ -30,6 +30,10 @@ simlength="1 day" #"23 hours"
 startdate="2017-07-01T00:00Z" # ISO norm 8601
 numsimstep=1 # number of simulation steps, simulation period = numsimstep * simlength
 
+# mail notification for slurm jobs
+mailtype=NONE # NONE, BEGIN, END, FAIL, REQUEUE, ALL
+mailaddress=""
+
 # user setting, leave empty for jsc machine defaults
 prevjobid="" # previous job-id, default leave empty
 npnode_u="" # number of cores per node
@@ -52,7 +56,7 @@ ico_node=3
 clm_node=1
 pfl_node=2
 
-# DebugMode
+# DebugMode: No job submission. Just config
 debugmode=false
 
 ###########################################
@@ -129,8 +133,10 @@ source ${ctl_dir}/utils_tsmp2.sh
 
 # generic sbatch string
 jobgenstring="--export=ALL \
-	      --account=$account
-              --partition=$partition"
+	      --account=${account} \
+              --partition=${partition} \
+	      --mail-type=${mailtype} \
+              --mail-user=${mailaddress}"
 
 ###
 # Loop over time period

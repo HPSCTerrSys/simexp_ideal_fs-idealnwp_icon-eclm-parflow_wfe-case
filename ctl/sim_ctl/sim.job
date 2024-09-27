@@ -1,13 +1,4 @@
 #!/usr/bin/env bash
-# #SBATCH --job-name=tsmp2wfe-sim
-# #SBATCH --nodes=__ntot_node__
-# #SBATCH --ntasks=__ntot_proc__
-# #SBATCH --ntasks-per-node=__npnode__
-# #SBATCH --account=__account__
-# #SBATCH --partition=__partition__
-# #SBATCH --time=__wallclock__
-# #SBATCH --output=%j.iconeclmparflow.out
-# #SBATCH --error=%j.iconeclmparflow.err
 
 ###
 # Import functions
