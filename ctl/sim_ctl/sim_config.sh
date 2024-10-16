@@ -16,10 +16,13 @@ echo "###"
 # General
 ####################
 
-# create and clean-up run-dir 
-echo "rundir: "$sim_dir
+# create and clean-up sim_dir
+echo "simdir: "$sim_dir
+if [ -d "${sim_dir}" ]; then
+  mv ${sim_dir} ${sim_dir}_bku$(date '+%Y%m%d%H%M%S')
+  #rm -f ${sim_dir:?}
+fi # -d sim_dir
 mkdir -pv $sim_dir
-#rm -f ${sim_dir:?}
 
 # copy blueprints
 cp ${ctl_dir}/conf/slm_multiprog_mapping_sed.conf ${sim_dir}/slm_multiprog_mapping.conf
@@ -66,10 +69,13 @@ if [[ "${modelid}" == *icon* ]]; then
   sed -i "s/__dateymd__/${dateymd}/" NAMELIST_icon
   sed -i "s/__outdatestart__/$(date -u -d "${startdate}" +%Y-%m-%dT%H:%M:%SZ)/" NAMELIST_icon
   sed -i "s/__outdateend__/$(date -u -d "${datep1}" +%Y-%m-%dT%H:%M:%SZ)/" NAMELIST_icon
-  sed -i "s/__outname__/out_icon_${EXP_ID}/" NAMELIST_icon
+  sed -i "s/__outname__/ICON_out_${expid}/" NAMELIST_icon
+  sed -i "s/__restartname__/${expid}_restart_\<mtype\>_\<rsttime\>.nc/" NAMELIST_icon
   sed -i "s#__latbc_dir__#${icon_latbc_dir}#" NAMELIST_icon
   sed -i "s/__simstart__/$(date -u -d "${startdate}" +%Y-%m-%dT%H:%M:%SZ)/" icon_master.namelist
   sed -i "s/__simend__/$(date -u -d "${datep1}" +%Y-%m-%dT%H:%M:%SZ)/" icon_master.namelist
+  sed -i "s/__dtrestart__/${simlensec}/" icon_master.namelist
+  sed -i "s/\(lrestart            =\).*/\1 $lrestart/" icon_master.namelist
 
 # link needed files
   ln -sf ${icon_latbc_dir}/igaf$(date -u -d "${startdate}" +%Y%m%d%H).nc dwdFG_R13B05_DOM01.nc
@@ -246,7 +252,7 @@ echo "#SBATCH ${jobsimstring//[$'\t\r\n']}" >> tsmp2.job
 echo "" >> tsmp2.job
 echo "modelid=${modelid}" >> tsmp2.job
 
-# cat submission commands
+# cat sim run script into submission script
 cat ${ctl_dir}/sim_ctl/sim_run.sh | tail -n +2 >> tsmp2.job # start from line 2
 
 #echo "mv $(echo ${jobsimstring#*output=} | cut -d' ' -f1) ." >> tsmp2.job
@@ -254,6 +260,7 @@ cat ${ctl_dir}/sim_ctl/sim_run.sh | tail -n +2 >> tsmp2.job # start from line 2
 
 sed -i "s/sim_run(){//" tsmp2.job
 sed -i "s/} # sim_run//" tsmp2.job
+sed -i "s#${log_dir}#${sim_dir}#g" tsmp2.job
 sed -i "s#\(LOADENVS=\).*#\1${tsmp2_env}#" tsmp2.job
 sed -i "s#\(CASE_DIR=\).*#\1${sim_dir}#" tsmp2.job
 sed -i "s#\(PARFLOW_DIR=\).*#\1${tsmp2_install_dir}#" tsmp2.job
