@@ -127,7 +127,7 @@ else
 tsmp2_install_dir=$tsmp2_install_dir_u
 fi
 if [ -z "$tsmp2_env_u" ]; then
-tsmp2_env=$tsmp2_install_dir/jsc.2023_Intel.sh
+tsmp2_env=$(find $tsmp2_install_dir -type f -name "jsc.*.sh")
 echo "Use enviromnent file $tsmp2_env"
 else
 tsmp2_env=$tsmp2_env_u
