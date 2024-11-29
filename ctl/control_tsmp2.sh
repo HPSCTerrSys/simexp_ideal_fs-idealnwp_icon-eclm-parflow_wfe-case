@@ -5,7 +5,7 @@
 # Author(s): Stefan Poll (s.poll@fz-juelich.de)
 
 # exit with error, export variables
-set -ae pipefail
+set -aeo pipefail
 
 ###########################################
 ###
