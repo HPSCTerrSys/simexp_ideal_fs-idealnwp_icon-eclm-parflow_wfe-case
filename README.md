@@ -9,7 +9,7 @@ TSMP2 workflow engine for running simulations. The following examples and descri
 ``` bash
 cd $PROJECT_DIR
 git clone --recurse-submodules https://github.com/HPSCTerrSys/TSMP2_workflow-engine
-wfe_dir=realpath tsmp2_workflow-engine
+wfe_dir=$(realpath tsmp2_workflow-engine)
 ```
 
 ## Building the model
@@ -30,10 +30,10 @@ cd ${wfe_dir}/src/TSMP2
 
 ## Run experiment
 
-Create and softlink run-directory on SCRATCH
+Create and symlink run-directory on SCRATCH
 ``` bash
 export SCRATCH_DIR=/p/scratch/YOUR_PROJECT/$USER/$sim_id
-mkdir -pv $SCRATCH_DIR
+mkdir -pv $SCRATCH_DIR/run
 ln -s $SCRATCH_DIR/run run
 ```
 
