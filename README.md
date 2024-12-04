@@ -32,7 +32,7 @@ The TSMP2 ( https://github.com/HPSCTerrSys/TSMP2 ) should be either already comp
 
 ```bash
 cd ${wfe_dir}/src/TSMP2
-./build_tsmp2.sh --tsmp2_env env/jsc.2024_Intel.sh --icon --eclm --parflow
+./build_tsmp2.sh --icon --eclm --parflow
 ```
 
 Adjust the components to your purpose.
