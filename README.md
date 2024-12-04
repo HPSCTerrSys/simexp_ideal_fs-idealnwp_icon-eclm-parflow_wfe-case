@@ -20,8 +20,10 @@ Instead of setting `BUDGET_ACCOUNT` you may also replace this variable in `ctl/c
 
 ``` bash
 cd $PROJECT/$USER
-git clone --recurse-submodules https://github.com/HPSCTerrSys/TSMP2_workflow-engine
+git clone https://github.com/HPSCTerrSys/TSMP2_workflow-engine
 wfe_dir=$(realpath tsmp2_workflow-engine)
+git submodule init
+git submodule update
 ```
 
 ## Building the model
@@ -30,7 +32,7 @@ The TSMP2 ( https://github.com/HPSCTerrSys/TSMP2 ) should be either already comp
 
 ```bash
 cd ${wfe_dir}/src/TSMP2
-./build_tsmp2.sh --icon --eclm --parflow
+./build_tsmp2.sh --tsmp2_env env/jsc.2024_Intel.sh --icon --eclm --parflow
 ```
 
 Adjust the components to your purpose.
