@@ -16,12 +16,12 @@ echo $BUDGET_ACCOUNTS
 ```
 
 In case you are not on a [JSC](https://www.fz-juelich.de/) machine, set the shell variables `BUDGET_ACCOUNT`, `PROJECT` and `SCRATCH` manually.
-Instead of setting `BUDGET_ACCOUNT` you may also replace this variable in `ctl/control_tsmp2.sh`
+Instead of setting `BUDGET_ACCOUNT` you may also replace this variable in `ctl/control_tsmp2.sh`.
 
 ``` bash
 cd $PROJECT/$USER
 git clone https://github.com/HPSCTerrSys/TSMP2_workflow-engine
-wfe_dir=$(realpath tsmp2_workflow-engine)
+wfe_dir=$(realpath TSMP2_workflow-engine)
 cd ${wfe_dir}
 git submodule update --init
 ```
