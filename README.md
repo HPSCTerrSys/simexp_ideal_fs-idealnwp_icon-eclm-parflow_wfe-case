@@ -39,10 +39,11 @@ Adjust the components to your purpose.
 
 ## Run experiment
 
-Create run-directory on SCRATCH
+If you want to store your run directory files elsewhere than here, make `${wfe_dir}/run` into a symlink pointing to your new directory.
 ``` bash
 export scratch_dir=$SCRATCH/$USER/$sim_id
 mkdir -pv $scratch_dir/run
+git rm run/.gitkeep
 ln -s $scratch_dir/run run
 ```
 
