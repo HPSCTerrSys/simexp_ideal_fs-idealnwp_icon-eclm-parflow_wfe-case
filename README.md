@@ -22,8 +22,8 @@ Instead of setting `BUDGET_ACCOUNT` you may also replace this variable in `ctl/c
 cd $PROJECT/$USER
 git clone https://github.com/HPSCTerrSys/TSMP2_workflow-engine
 wfe_dir=$(realpath tsmp2_workflow-engine)
-git submodule init
-git submodule update
+cd ${wfe_dir}
+git submodule update --init
 ```
 
 ## Building the model
@@ -43,6 +43,7 @@ Create run-directory on SCRATCH
 ``` bash
 export scratch_dir=$SCRATCH/$USER/$sim_id
 mkdir -pv $scratch_dir/run
+ln -s $scratch_dir/run run
 ```
 
 Adapt resources and time in the setup-script.
