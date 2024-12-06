@@ -44,7 +44,7 @@ If you want to store your run directory files elsewhere than here, make `${wfe_d
 export scratch_dir=$SCRATCH/$USER/$sim_id
 mkdir -pv $scratch_dir/run
 git rm run/.gitkeep
-ln -s $scratch_dir/run run
+ln -sf $scratch_dir/run run
 ```
 
 Adapt resources and time in the setup-script.
