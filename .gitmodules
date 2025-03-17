@@ -1,6 +1,6 @@
 [submodule "nml/eclm"]
 	path = nml/eclm
-	url = https://github.com/HPSCTerrSys/namelist_eCLM_bgcmode-template.git
+	url = https://github.com/HPSCTerrSys/namelist_eCLM_spmode-template.git
 	branch = master
 [submodule "nml/icon"]
 	path = nml/icon
