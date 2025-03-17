@@ -24,8 +24,8 @@ lpos=( false false false ) # config, run, cleanup
 lvis=( false false false ) # config, run, cleanup
 
 # time information
-cpltsp_atmsfc=1800 # coupling time step, atm-sfc, eCLM timestep [sec]
-cpltsp_sfcss=1800 # coupling time step, sfc-ss, ParFlow timestep [sec]
+cpltsp_atmsfc=900 # coupling time step, atm-sfc, eCLM timestep [sec]
+cpltsp_sfcss=900 # coupling time step, sfc-ss, ParFlow timestep [sec]
 simlength="1 day" #"23 hours"
 startdate="2017-07-01T00:00Z" # ISO norm 8601
 numsimstep=1 # number of simulation steps, simulation period = numsimstep * simlength
