@@ -95,9 +95,10 @@ if [[ "${modelid}" == *clm* ]]; then
   clm_tsp=${cpltsp_atmsfc}
   clmoutfrq=-1
 #
-  domainfile_clm=domain.lnd.ICON-11_ICON-11.230302_masked.nc
-  surffile_clm=surfdata_ICON-11_hist_16pfts_Irrig_CMIP6_simyr2000_c230302.nc
-  fini_clm="/p/scratch/cslts/poll1/sim/euro-cordex/eu11_iconeclm_icogrid/ini/EU11.clm2.r.2017-07-01-00000.nc"
+  domainfile_clm=domain.lnd.ICON-11_ICON-11.230302_landlake_halo.nc
+  surffile_clm=surfdata_ICON-11_hist_16pfts_Irrig_CMIP6_simyr2000_c230302_gcvurb-pfsoil_halo.nc
+  fini_clm=${rst_dir}/$(date -u -d "${datem1}" +%Y%m%d)/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-00000.nc
+#  fini_clm="/p/scratch/cslts/poll1/sim/euro-cordex/tsmp2_workflow-engine/run/sim_eclm_hom_20170701_res/eCLM_eur-11u.clm2.r.2017-07-01-00000.nc"
 
 # link executeable
 #  ln -sf $tsmp2_install_dir/bin/eclm.exe eclm
@@ -225,18 +226,16 @@ if [[ "${MODEL_ID}" == *-* ]]; then
   sed -i "s/__cpltsp_as__/$cpltsp_atmsfc/" namcouple
   sed -i "s/__cpltsp_ss__/$cpltsp_sfcss/" namcouple
   sed -i "s/__simlen__/$(( $simlensec + $cpltsp_atmsfc ))/" namcouple
-  sed -i "s/__icongp__/199920/" namcouple
-  sed -i "s/__eclmgpx__/199920/" namcouple
+  sed -i "s/__icongp__/189976/" namcouple
+  sed -i "s/__eclmgpx__/189976/" namcouple
   sed -i "s/__eclmgpy__/1/" namcouple
   sed -i "s/__parflowgpx__/444/" namcouple
   sed -i "s/__parflowgpy__/432/" namcouple
 
 # copy remap-files
   cp ${geo_dir}/oasis/static/masks.nc .
-#  cp ${geo_dir}/static/oasis/grids.nc .
   if [[ "${modelid}" == *parflow* ]]; then
     cp ${geo_dir}/oasis/static/rmp* .
-    cp ${geo_dir}/oasis/static/masks_parflow.nc masks.nc
   fi
 
 fi # if modelid == oasis

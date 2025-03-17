@@ -153,6 +153,7 @@ do
 
 # time information
 datep1=$(date -u -d -I "+${startdate} + ${simlength}")
+datem1=$(date -u -d -I "+${startdate} - ${simlength}")
 simlensec=$(( $(date -u -d "${datep1}" +%s)-$(date -u -d "${startdate}" +%s) ))
 simlenhr=$(($simlensec/3600 | bc -l))
 dateymd=$(date -u -d "${startdate}" +%Y%m%d)
