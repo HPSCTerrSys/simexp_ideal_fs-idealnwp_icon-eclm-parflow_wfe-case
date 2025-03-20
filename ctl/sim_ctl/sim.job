@@ -8,6 +8,14 @@ source ${ctl_dir}/sim_ctl/sim_run.sh
 source ${ctl_dir}/sim_ctl/sim_cleanup.sh
 
 ###
+# Import arrays
+###
+IFS=' ' read -r -a lpre <<< "$lprestr"
+IFS=' ' read -r -a lsim <<< "$lsimstr"
+IFS=' ' read -r -a lpos <<< "$lposstr"
+IFS=' ' read -r -a lvis <<< "$lvisstr"
+
+###
 # source environment
 ###
 source ${tsmp2_env}

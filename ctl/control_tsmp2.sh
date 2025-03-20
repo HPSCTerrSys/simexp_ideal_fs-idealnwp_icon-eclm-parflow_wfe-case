@@ -143,6 +143,12 @@ jobgenstring="--export=ALL \
               --mail-type=${mailtype} \
               --mail-user=${mailaddress}"
 
+# convert arrays to string for slurm job script
+lprestr="${lpre[@]}"
+lsimstr="${lsim[@]}"
+lposstr="${lpos[@]}"
+lvisstr="${lvis[@]}"
+
 ###
 # Loop over time period
 ###
