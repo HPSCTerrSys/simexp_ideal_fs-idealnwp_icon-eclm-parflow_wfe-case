@@ -237,6 +237,10 @@ if (! ${debugmode}) ; then
   submit_sim=$(sbatch ${jobsimstring} ${ctl_dir}/sim_ctl/sim.job 2>&1)
   echo $submit_sim" for simulation"
 else
+  # Set lsim run & cleanup to false and source sim.job
+  lsim[1]=false
+  lsim[2]=false
+  lsimstr="${lsim[@]}"
   source ${ctl_dir}/sim_ctl/sim.job
 fi
 
