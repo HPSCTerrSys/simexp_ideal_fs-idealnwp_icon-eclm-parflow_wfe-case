@@ -223,6 +223,7 @@ if [[ "${MODEL_ID}" == *-* ]]; then
   cp ${nml_dir}/oasis/namcouple_${modelid} namcouple
 
 # OAS NML
+  sed -i "s/__msglvl__/0/" namcouple
   sed -i "s/__cpltsp_as__/$cpltsp_atmsfc/" namcouple
   sed -i "s/__cpltsp_ss__/$cpltsp_sfcss/" namcouple
   sed -i "s/__simlen__/$(( $simlensec + $cpltsp_atmsfc ))/" namcouple
