@@ -281,6 +281,38 @@ pos_id=$(echo $submit_pos | awk 'END{print $(NF)}')
 
 fi # $lpos
 
+######
+## Visualization
+######
+
+# check if any is true
+if [[ ${lvis[*]} =~ true ]]; then
+
+# set dependency
+if ${lpos[2]} ; then
+  dependencystring="afterok:${pos_id}"
+else
+  dependencystring=$prevjobid
+fi
+
+# Configure TSMP2 Postprocessing
+jobvisstring="${jobgenstring} \
+              --job-name="${expid}_${caseid}vis_${dateshort}" \
+              --time=${vis_wallclock} \
+              --output="${log_dir}/%x_%j.out" \
+              --error="${log_dir}/%x_%j.err" \
+              --nodes=1 \
+              --ntasks=${npnode}"
+
+# Submit to vis.job
+submit_vis=$(sbatch ${jobvisstring} ${ctl_dir}/vis_ctl/vis.job 2>&1)
+echo $submit_vis" for visualization"
+
+# get jobid
+vis_id=$(echo $submit_vis | awk 'END{print $(NF)}')
+
+fi # $lvis
+
 ###
 # Loop increment
 ###

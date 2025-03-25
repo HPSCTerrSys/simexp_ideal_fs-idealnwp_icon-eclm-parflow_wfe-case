@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+###
+# Import functions
+###
+source ${ctl_dir}/vis_ctl/vis_config.sh
+source ${ctl_dir}/vis_ctl/vis_run.sh
+source ${ctl_dir}/vis_ctl/vis_cleanup.sh
+
+###
+# Import arrays
+###
+IFS=' ' read -r -a lpre <<< "$lvisstr"
+IFS=' ' read -r -a lsim <<< "$lsimstr"
+IFS=' ' read -r -a lpos <<< "$lvisstr"
+IFS=' ' read -r -a lvis <<< "$lvisstr"
+
+###
+# source environment
+###
+source ${tsmp2_env} # should be changed to visualisation env.
+
+###
+# Start config, run, cleanup
+###
+if ${lvis[0]} ; then
+
+echo "######"
+echo "## CONFIG Visualization"
+echo "######"
+
+vis_config
+
+fi # config
+
+#---
+
+if ${lvis[1]} ; then
+
+echo "######"
+echo "## RUN Visualization"
+echo "######"
+
+vis_run
+
+fi # run
+
+#---
+
+if ${lvis[2]} ; then
+
+echo "######"
+echo "## CLEANUP Visualization"
+echo "######"
+
+vis_cleanup
+
+fi # cleanup
+
+exit 0
