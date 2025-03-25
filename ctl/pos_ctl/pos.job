@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+###
+# Import functions
+###
+source ${ctl_dir}/pos_ctl/pos_config.sh
+source ${ctl_dir}/pos_ctl/pos_run.sh
+source ${ctl_dir}/pos_ctl/pos_cleanup.sh
+
+###
+# Import arrays
+###
+IFS=' ' read -r -a lpre <<< "$lposstr"
+IFS=' ' read -r -a lsim <<< "$lsimstr"
+IFS=' ' read -r -a lpos <<< "$lposstr"
+IFS=' ' read -r -a lvis <<< "$lvisstr"
+
+###
+# source environment
+###
+source ${tsmp2_env} # should be changed to post-processing env.
+
+###
+# Start config, run, cleanup
+###
+if ${lpos[0]} ; then
+
+echo "######"
+echo "## CONFIG Post-processing"
+echo "######"
+
+pos_config
+
+fi # config
+
+#---
+
+if ${lpos[1]} ; then
+
+echo "######"
+echo "## RUN Post-processing"
+echo "######"
+
+pos_run
+
+fi # run
+
+#---
+
+if ${lpos[2]} ; then
+
+echo "######"
+echo "## CLEANUP Post-processing"
+echo "######"
+
+pos_cleanup
+
+fi # cleanup
+
+exit 0
