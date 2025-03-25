@@ -23,18 +23,15 @@ if [ -e "${sim_dir}" ]; then
 fi
 mkdir -p $sim_dir
 
-# copy blueprints
-cp ${ctl_dir}/conf/slm_multiprog_mapping_sed.conf ${sim_dir}/slm_multiprog_mapping.conf
-
 # slm_multiprog
-if [[ "${modelid}" != *icon* ]]; then
-   sed -i "/__icon_pe__/d" ${sim_dir}/slm_multiprog_mapping.conf
+if [[ "${modelid}" == *icon* ]]; then
+   echo "0-__icon_pe__   ./icon" >> ${sim_dir}/slm_multiprog_mapping.conf
 fi
-if [[ "${modelid}" != *eclm* ]]; then
-   sed -i "/__clm_pe__/d" ${sim_dir}/slm_multiprog_mapping.conf
+if [[ "${modelid}" == *eclm* ]]; then
+   echo "__clm_ps__-__clm_pe__ ./eclm" >> ${sim_dir}/slm_multiprog_mapping.conf
 fi
-if [[ "${modelid}" != *parflow* ]]; then
-   sed -i "/__pfl_pe__/d" ${sim_dir}/slm_multiprog_mapping.conf
+if [[ "${modelid}" == *parflow* ]]; then
+   echo "__pfl_ps__-__pfl_pe__ ./parflow __pfl_expid__" >>  ${sim_dir}/slm_multiprog_mapping.conf
 fi
 sed -i "s/__icon_pe__/$(($ico_proc-1))/" ${sim_dir}/slm_multiprog_mapping.conf
 sed -i "s/__clm_ps__/$(($ico_proc))/" ${sim_dir}/slm_multiprog_mapping.conf
