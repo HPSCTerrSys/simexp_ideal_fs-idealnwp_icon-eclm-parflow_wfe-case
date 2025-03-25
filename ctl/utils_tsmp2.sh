@@ -37,3 +37,32 @@ tot_proc=$(($ico_proc+$clm_proc+$pfl_proc))
 tot_node=$(echo $(echo "$ico_node+$clm_node+$pfl_node" | bc -l) | sed -e 's/\.0*$//;s/\.[0-9]*$/ + 1/' | bc) # ceiling
 
 } # sim_calc_numberofproc
+
+# check if oasis is active/true
+check_run_oasis() {
+  local model_id
+  local comp_models=("icon" "eclm" "parflow")
+  local model_count=0
+
+  model_id=$(echo ${MODEL_ID} | tr '[:upper:]' '[:lower:]')
+
+  # Split the identifier into individual elements
+  IFS='-' read -r -a elements <<< "$model_id"
+
+  # Check for each component model
+  for comp_model in "${comp_models[@]}"; do
+    for element in "${elements[@]}"; do
+      if [ "$element" == "$comp_model" ]; then
+#        ((model_count++))
+         model_count=$((model_count+1))
+      fi
+    done
+  done
+
+  # Return true if at least 2 components are found
+  if [ "$model_count" -ge 2 ]; then
+    echo "true"
+  else
+    echo "false"
+  fi
+} # check_run_oasis

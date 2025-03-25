@@ -214,7 +214,7 @@ fi # if modelid == parflow
 # OASIS
 ####################
 
-if [[ "${MODEL_ID}" == *-* ]]; then
+if [[ "${run_oasis}" == true ]]; then
 
 # copy namelist
   cp ${nml_dir}/oasis/namcouple_${modelid} namcouple

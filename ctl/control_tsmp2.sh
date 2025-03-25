@@ -149,6 +149,9 @@ lsimstr="${lsim[@]}"
 lposstr="${lpos[@]}"
 lvisstr="${lvis[@]}"
 
+# check for oasis active
+run_oasis=$(check_run_oasis)
+
 ###
 # Loop over time period
 ###
