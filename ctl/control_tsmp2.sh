@@ -119,7 +119,7 @@ tsmp2_install_dir=${tsmp2_dir}/bin/${SYSTEMNAME^^}_${MODEL_ID}
 echo "Taking TSMP2 component binaries from default dir at $tsmp2_install_dir..."
 fi
 if [ -z "$tsmp2_env" ]; then
-tsmp2_env=$(find $tsmp2_install_dir -type f -name "jsc.*.sh")
+tsmp2_env=$(find $tsmp2_install_dir -type f -name "*mpi")
 echo "Using environment file $tsmp2_env..."
 fi
 
