@@ -41,7 +41,7 @@ mailaddress=""
 prevjobid="" # previous job-id, default leave empty
 npnode="" # number of cores per node
 partition="" # compute partition
-account=$BUDGET_ACCOUNTS # SET compute account. If not set, slts is used
+account="" # SET compute account. $BUDGET_ACCOUNTS / slts is used, if not set.
 
 # wallclock
 pre_wallclock=00:05:00
@@ -89,42 +89,27 @@ echo "ctl_dir: "${ctl_dir}
 echo "nml_dir: "${nml_dir}
 echo "geo_dir: "${geo_dir}
 
-# select machine defaults, if not set by user
-if ( [ -z $npnode] | [ -z $partition ] ); then
-echo "Taking system default for npnode and partition..."
-if [ "${SYSTEMNAME}" == "juwels" ]; then
-npnode=48
-partition=batch
-elif [ "${SYSTEMNAME}" == "jurecadc" ] || [ "${SYSTEMNAME}" == "jusuf" ]; then
-npnode=128
-partition=dc-cpu
-else
-echo "Machine '$SYSTEMNAME' is not recognized. Valid input juwels/jurecadc/jusuf."
-fi
-else
-echo "Taking user setting for nonode $npnode and partition $partition..."
-fi
-
-if [ -z $account ]; then
-echo "WARNING: No account is set. Using slts!"
-account=slts
-fi
-
-if [ -z "$tsmp2_dir" ]; then
-tsmp2_dir=$(realpath  ${ctl_dir}/../src/TSMP2)
-echo "Taking TSMP2 default dir at $tsmp2_dir..."
-fi
-if [ -z "$tsmp2_install_dir" ]; then
-tsmp2_install_dir=${tsmp2_dir}/bin/${SYSTEMNAME^^}_${MODEL_ID}
-echo "Taking TSMP2 component binaries from default dir at $tsmp2_install_dir..."
-fi
-if [ -z "$tsmp2_env" ]; then
-tsmp2_env=$(find $tsmp2_install_dir -type f -name "*mpi")
-echo "Using environment file $tsmp2_env..."
-fi
-
 # Import function
 source ${ctl_dir}/utils_tsmp2.sh
+
+# select machine defaults, if not set by user
+if [ "${SYSTEMNAME}" == "juwels" ]; then
+check_var_def npnode 48 "Taking user setting for npnode "
+check_var_def partition batch "Taking user setting and partition "
+elif [ "${SYSTEMNAME}" == "jurecadc" ] || [ "${SYSTEMNAME}" == "jusuf" ]; then
+check_var_def npnode 128 "Taking user setting for npnode "
+check_var_def partition dc-cpu "Taking user setting and partition "
+else
+if ( [ -z $npnode] | [ -z $partition ] ); then
+echo "No npnode and/or partition for machine '$SYSTEMNAME'. Valid machine defaults for juwels/jurecadc/jusuf."
+fi
+fi
+account_def=${BUDGET_ACCOUNTS:-slts}
+check_var_def account ${account_def} "WARNING: No account is set. Using account="
+check_var_def tsmp2_dir $(realpath  ${ctl_dir}/../src/TSMP2) "Taking TSMP2 default dir at "
+check_var_def tsmp2_install_dir ${tsmp2_dir}/bin/${SYSTEMNAME^^}_${MODEL_ID} \
+              "Taking TSMP2 component binaries from default dir at"
+check_var_def tsmp2_env $(find $tsmp2_install_dir -type f -name "*mpi") "Using environment file "
 
 # generic sbatch string
 jobgenstring="--export=ALL \

@@ -66,3 +66,20 @@ check_run_oasis() {
     echo "false"
   fi
 } # check_run_oasis
+
+# check var defaults
+check_var_def() {
+  local var_name="$1"
+  local default="$2"
+  local message="$3"
+  local cur_value="${!var_name}"
+
+  # take default value when var_name is not set yet
+  if [ -z "$cur_value" ]; then
+    cur_value="$default"
+    eval "$var_name=\"$cur_value\""
+    if [ -n "$message" ]; then
+      echo "$message"${!var_name}
+    fi
+  fi
+} # check_var_def
