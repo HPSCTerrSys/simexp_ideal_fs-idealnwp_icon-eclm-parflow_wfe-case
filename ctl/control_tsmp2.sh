@@ -44,7 +44,7 @@ partition="" # compute partition
 account="" # SET compute account. $BUDGET_ACCOUNTS / slts is used, if not set.
 
 # wallclock
-pre_wallclock=00:05:00
+pre_wallclock=00:35:00
 sim_wallclock=00:25:00 # needs to be format hh:mm:ss
 pos_wallclock=00:05:00
 vis_wallclock=00:05:00
@@ -140,6 +140,8 @@ datep1=$(date -u -d -I "+${startdate} + ${simlength}")
 datem1=$(date -u -d -I "+${startdate} - ${simlength}")
 simlensec=$(( $(date -u -d "${datep1}" +%s)-$(date -u -d "${startdate}" +%s) ))
 simlenhr=$(($simlensec/3600 | bc -l))
+simlenmon=$(( (10#$(date -u -d "${datep1}" +%Y)-10#$(date -u -d "${startdate}" +%Y))*12 + \
+               10#$(date -u -d "${datep1}" +%m)-10#$(date -u -d "${startdate}" +%m) ))
 dateymd=$(date -u -d "${startdate}" +%Y%m%d)
 dateshort=$(date -u -d "${startdate}" +%Y%m%d%H%M%S)
 
@@ -168,7 +170,18 @@ jobprestring="${jobgenstring} \
               --ntasks=${npnode}"
 
 # Submit to pre.job
-submit_pre=$(sbatch ${jobprestring} ${ctl_dir}/pre_ctl/pre.job 2>&1)
+if (! ${debugmode}) ; then
+  # Submit to sim.job
+  submit_pre=$(sbatch ${jobprestring} ${ctl_dir}/pre_ctl/pre.job 2>&1)
+  echo $submit_pre" for preprocessing"
+else
+  # Set lpre run & cleanup to false and source pre.job
+  lpre[1]=false
+  lpre[2]=false
+  lprestr="${lpre[@]}"
+  source ${ctl_dir}/pre_ctl/pre.job
+fi
+
 echo $submit_pre" for preprocessing"
 
 # get jobid
