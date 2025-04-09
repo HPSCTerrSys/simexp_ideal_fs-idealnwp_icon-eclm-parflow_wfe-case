@@ -18,6 +18,7 @@ IFS=' ' read -r -a lvis <<< "$lvisstr"
 ###
 # source environment
 ###
+timestart=$(date +%s)
 #source ${tsmp2_env} # chang pre-processing env. according to comp. model
 
 ###
@@ -56,5 +57,11 @@ echo "######"
 pre_cleanup
 
 fi # cleanup
+
+###
+# Log job
+###
+timeend=$(date +%s)
+logging_job_status "pre"
 
 exit 0

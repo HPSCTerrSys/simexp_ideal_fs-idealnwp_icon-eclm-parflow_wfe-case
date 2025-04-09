@@ -96,7 +96,8 @@ cp -v ${sim_dir}/slm_multiprog_mapping.conf ${simout_dir}/log/
 # sim logs
 mv ${log_dir}/${SLURM_JOB_NAME}_${SLURM_JOB_ID}.{err,out} ${simout_dir}/log/.
 
-#echo "SLURM node ID LIST:"${SLURM_JOB_NODELIST}
+# job info
+echo $(scontrol show job ${SLURM_JOB_ID}) > ${simout_dir}/log/job_info.log
 
 # remove run directory
 rm -rf ${sim_dir:?}

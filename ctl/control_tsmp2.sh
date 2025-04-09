@@ -62,6 +62,9 @@ pfl_node=2
 # DebugMode: No job submission. Just config
 debugmode=false
 
+# log job status
+joblog=true
+
 ###########################################
 
 ###
@@ -181,8 +184,6 @@ else
   lprestr="${lpre[@]}"
   source ${ctl_dir}/pre_ctl/pre.job
 fi
-
-echo $submit_pre" for preprocessing"
 
 # get jobid
 pre_id=$(echo $submit_pre | awk 'END{print $(NF)}')

@@ -1,5 +1,6 @@
 # logs
 ctl/logs
+ctl/job_status.log
 # run directories
 run/
 # data directories

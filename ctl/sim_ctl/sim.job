@@ -18,6 +18,7 @@ IFS=' ' read -r -a lvis <<< "$lvisstr"
 ###
 # source environment
 ###
+timestart=$(date +%s)
 source ${tsmp2_env}
 
 ###
@@ -56,5 +57,11 @@ echo "######"
 sim_cleanup
 
 fi # cleanup
+
+###
+# Log simulation
+###
+timeend=$(date +%s)
+logging_job_status "sim"
 
 exit 0

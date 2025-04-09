@@ -18,6 +18,7 @@ IFS=' ' read -r -a lvis <<< "$lvisstr"
 ###
 # source environment
 ###
+timestart=$(date +%s)
 source ${tsmp2_env} # should be changed to post-processing env.
 
 ###
@@ -56,5 +57,11 @@ echo "######"
 pos_cleanup
 
 fi # cleanup
+
+###
+# Log job
+###
+timeend=$(date +%s)
+logging_job_status "pos"
 
 exit 0

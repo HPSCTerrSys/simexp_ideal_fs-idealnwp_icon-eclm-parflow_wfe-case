@@ -83,3 +83,14 @@ check_var_def() {
     fi
   fi
 } # check_var_def
+
+logging_job_status(){
+  local step="$1"
+
+  if [ "$joblog" = true ]; then
+    job_state=$(scontrol show job $SLURM_JOB_ID | grep "JobState=" | cut -d= -f2 | cut -d' ' -f1)
+    printf "%10s %3s %15s %14s %10s %14s %9s\n" "${expid}" "${step}" "${modelid}" \
+        "${dateshort}" "${job_state}" "$(date '+%Y%m%d%H%M%S')" $(date -u -d "0 $timeend sec - $timestart sec" +"%H:%M:%S") \
+        >> ${ctl_dir}/job_status.log
+  fi
+} # logging_job_status
