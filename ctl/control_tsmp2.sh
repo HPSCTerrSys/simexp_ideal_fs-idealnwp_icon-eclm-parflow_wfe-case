@@ -112,7 +112,7 @@ check_var_def account ${account_def} "WARNING: No account is set. Using account=
 check_var_def tsmp2_dir $(realpath  ${ctl_dir}/../src/TSMP2) "Taking TSMP2 default dir at "
 check_var_def tsmp2_install_dir ${tsmp2_dir}/bin/${SYSTEMNAME^^}_${MODEL_ID} \
               "Taking TSMP2 component binaries from default dir at"
-check_var_def tsmp2_env $(find $tsmp2_install_dir -type f -name "*mpi") "Using environment file "
+check_var_def tsmp2_env $(find ${tsmp2_install_dir}/ -type f -name "*mpi") "Using environment file "
 
 # generic sbatch string
 jobgenstring="--export=ALL \
