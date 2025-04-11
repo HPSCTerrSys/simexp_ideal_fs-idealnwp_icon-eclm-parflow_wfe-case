@@ -7,7 +7,7 @@ echo "# Cleanup Simulation"
 echo "###"
 
 simout_dir=${out_dir}/${caseid}${modelid}_${dateymd}
-simrst_dir=${rst_dir}/${caseid}${modelid}
+simrst_dir=${rst_dir}/${caseid}${dateymd}
 
 # create a new simulation output directory
 if [ -e "${simout_dir}" ]; then

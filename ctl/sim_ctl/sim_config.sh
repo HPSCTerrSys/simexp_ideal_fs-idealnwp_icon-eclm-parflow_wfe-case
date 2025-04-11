@@ -42,6 +42,8 @@ sed -i "s/__pfl_pe__/$(($ico_proc+$clm_proc+$pfl_proc-1))/" ${sim_dir}/slm_multi
 # change to run directory
 cd ${sim_dir}
 
+simrstm1_dir=${rst_dir}/${caseid}$(date -u -d "${datem1}" +%Y%m%d)
+
 ####################
 # ICON
 ####################
@@ -90,12 +92,14 @@ if [[ "${modelid}" == *clm* ]]; then
 # 
   geo_dir_clm=${geo_dir}/eclm/static
   clm_tsp=${cpltsp_atmsfc}
-  clmoutfrq=-1
+  clmoutfrq=-1 # in hr
+  clmoutmfilt=24 # number of tsp in out
 #
   domainfile_clm=domain.lnd.ICON-11_ICON-11.230302_landlake_halo.nc
   surffile_clm=surfdata_ICON-11_hist_16pfts_Irrig_CMIP6_simyr2000_c230302_gcvurb-pfsoil_halo.nc
-  fini_clm=${rst_dir}/$(date -u -d "${datem1}" +%Y%m%d)/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-00000.nc
-#  fini_clm="/p/scratch/cslts/poll1/sim/euro-cordex/tsmp2_workflow-engine/run/sim_eclm_hom_20170701_res/eCLM_eur-11u.clm2.r.2017-07-01-00000.nc"
+#  fini_clm=${rst_dir}/$(date -u -d "${datem1}" +%Y%m%d)/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-00000.nc
+  fini_clm=${simrstm1_dir}/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-$(printf "%05d" $(( $(date -d "${startdate}" +%s) % 86400 ))).nc
+
 
 # link executeable
 #  ln -sf $tsmp2_install_dir/bin/eclm.exe eclm
@@ -133,6 +137,7 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s/__clm_casename__/eCLM_${EXP_ID}/" drv_in
   sed -i "s/__clm_tsp__/$clm_tsp/" lnd_in
   sed -i "s/\( hist_nhtfrq =\).*/\1 $clmoutfrq/" lnd_in
+  sed -i "s/\( hist_mfilt =\).*/\1 $clmoutmfilt/" lnd_in
   sed -i "s#__fini_clm__#$fini_clm#" lnd_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" lnd_in
   sed -i "s#__domainfile_clm__#$domainfile_clm#" lnd_in
@@ -148,7 +153,7 @@ if [[ "${modelid}" == *clm* ]]; then
   fi
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm_in
   sed -i "s/__simystart__/$(date -u -d "${startdate}" +%Y)/g" datm_in
-  sed -i "s/__simyend__/$(date -u -d "${startdate}" +%Y)/g" datm_in
+  sed -i "s/__simyend__/$(date -u -d "${datep1}" +%Y)/g" datm_in
   sed -i "s#__domainfile_clm__#$domainfile_clm#" datm_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" drv_flds_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" mosart_in
@@ -165,6 +170,9 @@ fi # if modelid == CLM
 ####################
 if [[ "${modelid}" == *parflow* ]]; then
 
+#
+  fini_pfl=${simrstm1_dir}/parflow/${EXP_ID}.out.${dateshort}.nc
+
 # link executeable
 #  ln -sf $tsmp2_install_dir/bin/parflow parflow
   cp $tsmp2_install_dir/bin/parflow parflow
@@ -173,12 +181,13 @@ if [[ "${modelid}" == *parflow* ]]; then
   parflow_tsp=$(echo "$cpltsp_sfcss / 3600" | bc -l)
   parflow_base=0.0025
 #  parflow_inifile=${frc_dir}/parflow/ini/ic_press.pfb
+  pfloutfrq=1.0
 
 # copy namelist
   cp ${nml_dir}/parflow/ascii2pfb_slopes.tcl ascii2pfb_slopes.tcl
   cp ${nml_dir}/parflow/ascii2pfb_SoilInd.tcl ascii2pfb_SoilInd.tcl
   cp ${nml_dir}/parflow/coup_oas.tcl coup_oas.tcl
-#  cp ${parflow_inifile}  $(basename "$parflow_inifile")
+  ln -s ${fini_pfl} .
 
 # copy sa and pfsol files
   cp ${geo_dir}/parflow/static/*sa .
@@ -197,9 +206,9 @@ if [[ "${modelid}" == *parflow* ]]; then
   sed -i "s/__start_cnt_pfl__/0/" coup_oas.tcl
   sed -i "s/__stop_pfl_bldsva__/$(echo "${simlenhr} + ${parflow_base}" | bc -l)/" coup_oas.tcl
   sed -i "s/__dt_pfl_bldsva__/$parflow_tsp/" coup_oas.tcl
-  sed -i "s/__dump_pfl_interval__/1.0/" coup_oas.tcl
+  sed -i "s/__dump_pfl_interval__/$pfloutfrq/" coup_oas.tcl
   sed -i "s/__pfl_casename__/$EXP_ID/" coup_oas.tcl
-  sed -i "s#__inifile__#$(basename "$parflow_inifile")#" coup_oas.tcl
+  sed -i "s#__inifile__#$(basename "$fini_pfl")#" coup_oas.tcl
   sed -i "s/__pfl_expid__/$EXP_ID/" slm_multiprog_mapping.conf
 
 
@@ -250,9 +259,6 @@ echo "modelid=${modelid}" >> tsmp2.job
 
 # cat sim run script into submission script
 cat ${ctl_dir}/sim_ctl/sim_run.sh | tail -n +2 >> tsmp2.job # start from line 2
-
-#echo "mv $(echo ${jobsimstring#*output=} | cut -d' ' -f1) ." >> tsmp2.job
-#echo "mv $(echo ${jobsimstring#*error=} | cut -d' ' -f1) ." >> tsmp2.job
 
 sed -i "s/sim_run(){//" tsmp2.job
 sed -i "s/} # sim_run//" tsmp2.job

@@ -45,6 +45,10 @@ if [[ "${simlenmon}" -ge 1 ]]; then
       fi
    done
 fi
+if [ ${#listfrcfile[@]} -eq 0 ]; then
+   echo "No Forcing needs to be processed. " && exit 1
+fi
+#unset listfrcfile[-1]
 
 echo "List of forcing files: "${listfrcfile[@]}
 
