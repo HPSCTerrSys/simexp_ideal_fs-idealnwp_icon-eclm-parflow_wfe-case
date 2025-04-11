@@ -5,7 +5,6 @@
 # sim_calc_numberofproc - calculate number of processors for TSMP2 application
 ##
 
-
 # calculate number of processors for TSMP2 application
 sim_calc_numberofproc(){
 
@@ -88,9 +87,10 @@ logging_job_status(){
   local step="$1"
 
   if [ "$joblog" = true ]; then
-    job_state=$(scontrol show job $SLURM_JOB_ID | grep "JobState=" | cut -d= -f2 | cut -d' ' -f1)
-    printf "%10s %3s %15s %14s %10s %14s %9s\n" "${expid}" "${step}" "${modelid}" \
-        "${dateshort}" "${job_state}" "$(date '+%Y%m%d%H%M%S')" $(date -u -d "0 $timeend sec - $timestart sec" +"%H:%M:%S") \
+    job_id=$SLURM_JOB_ID
+    job_state=$(scontrol show job $job_id | grep "JobState=" | cut -d= -f2 | cut -d' ' -f1)
+    printf "%10s %8s %3s %15s %14s %10s %10s %14s %8s\n" "${expid}" "${caseid}" "${step}" "${modelid}" \
+        "${dateshort}" "${job_id}" "${job_state}" "$(date '+%Y%m%d%H%M%S')" $(date -u -d "0 $timeend sec - $timestart sec" +"%H:%M:%S") \
         >> ${ctl_dir}/job_status.log
   fi
 } # logging_job_status
