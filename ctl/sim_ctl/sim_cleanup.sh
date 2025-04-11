@@ -19,6 +19,8 @@ echo "Moving model output to simout and storing restart files"
 
 mkdir -p "${simout_dir}/log" "${simout_dir}/nml" "${simout_dir}/rst" "${simout_dir}/bin"
 
+cp ${tsmp2_env} ${simout_dir}/bin/
+
 if [[ "${MODEL_ID}" == *-* ]]; then
   cp -v ${sim_dir}/namcouple ${simout_dir}/nml/
 fi # MODEL_ID oasis
@@ -83,8 +85,11 @@ if [[ "${modelid}" == *parflow* ]]; then
 
   # Restart
   mkdir -p ${simout_dir}/rst/parflow ${simrst_dir}/parflow
-  cp -v $(ls -1 ${sim_dir}/*.out.?????.nc | tail -1) ${simout_dir}/rst/parflow
-  cp -v $(ls -1 ${sim_dir}/*.out.?????.nc | tail -1) ${simrst_dir}/parflow # save twice as simout is archived
+  pflnout=$(printf "%05d" $(echo "$simlenhr / $pfloutfrq" | bc))
+#  cp -v $(ls -1 ${sim_dir}/*.out.?????.nc | tail -1) ${simout_dir}/rst/parflow
+  # save twice as simout is archived
+  cp -v ${sim_dir}/${EXP_ID}.out.${pflnout}.nc ${simout_dir}/rst/parflow
+  cp -v ${sim_dir}/${EXP_ID}.out.${pflnout}.nc ${simrst_dir}/parflow/${EXP_ID}.out.$(date -u -d "${datep1}" +%Y%m%d%H%M%S).nc # 2nd copy
 
   # Copy binary
   cp -v parflow ${simout_dir}/bin/
