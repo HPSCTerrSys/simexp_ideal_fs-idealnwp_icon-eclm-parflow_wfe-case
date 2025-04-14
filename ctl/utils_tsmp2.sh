@@ -3,6 +3,10 @@
 #
 # Included functions:
 # sim_calc_numberofproc - calculate number of processors for TSMP2 application
+# check_run_oasis - check if simulation is running in coupled mode
+# check_var_def - check if variable is defined and if not take default and printing message
+# logging_job_status - log information about the job into job_status.log
+# parse_config_file - parser to read in ini/conf-files
 ##
 
 # calculate number of processors for TSMP2 application
@@ -94,3 +98,46 @@ logging_job_status(){
         >> ${ctl_dir}/job_status.log
   fi
 } # logging_job_status
+
+
+# input 1: filename of conf-file input 2: section (optional)
+parse_config_file() {
+    local config_file="$1"
+    local target_section="${2:-default}"
+    local current_section="default"
+
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        line="${line%%#*}" # remove comments including in-line comments
+        line="${line%"${line##*[![:space:]]}"}" # remove spaces
+        line="${line#"${line%%[![:space:]]*}"}" # remove spaces
+        [[ -z "$line" ]] && continue # skip empty lines
+
+        # get section
+        if [[ "$line" =~ ^\[(.*)\]$ ]]; then
+            current_section="${BASH_REMATCH[1]}"
+            continue
+        fi
+
+        # only parse target section
+        if [[ "$current_section" == "$target_section" ]]; then
+            # handle array assignment
+            if [[ "$line" =~ ^([a-zA-Z_][a-zA-Z0-9_]*)=\((.*)\)$ ]]; then
+                key="${BASH_REMATCH[1]}"
+                array_values="${BASH_REMATCH[2]}"
+                # evaluate array values and convert them to an array
+                eval "$key=($array_values)"
+
+            # handle scalar assignment
+            elif [[ "$line" =~ ^([a-zA-Z_][a-zA-Z0-9_]*)=(.*)$ ]]; then
+                key="${BASH_REMATCH[1]}"
+                value="${BASH_REMATCH[2]}"
+                # strip surrounding quotes if they exist
+                value="${value%\"}"
+                value="${value#\"}"
+
+                # evaluate the value
+                eval "$key=\"$value\""
+            fi
+        fi
+    done < "$config_file"
+} # parse_config_file

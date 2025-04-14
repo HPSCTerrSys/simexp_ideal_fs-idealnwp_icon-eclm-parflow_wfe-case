@@ -42,14 +42,18 @@ sed -i "s/__pfl_pe__/$(($ico_proc+$clm_proc+$pfl_proc-1))/" ${sim_dir}/slm_multi
 # change to run directory
 cd ${sim_dir}
 
-simrstm1_dir=${rst_dir}/${caseid}$(date -u -d "${datem1}" +%Y%m%d)
+parse_config_file ${conf_file} "sim_config_general"
+
+simrstm1_dir=${simrstm1_dir:-${rst_dir}/${caseid}$(date -u -d "${datem1}" +%Y%m%d)}
 
 ####################
 # ICON
 ####################
 if [[ "${modelid}" == *icon* ]]; then
 
-  icon_latbc_dir=${frc_dir}/icon/latbc/$(date -u -d "${startdate}" +%Y%m)
+  parse_config_file ${conf_file} "sim_config_icon"
+
+  icon_latbc_dir=${icon_latbc_dir:-${frc_dir}/icon/latbc/$(date -u -d "${startdate}" +%Y%m)}
 
 # link executeable (will be replaced with copy in production)
 #  ln -sf $tsmp2_install_dir/bin/icon icon
@@ -76,11 +80,11 @@ if [[ "${modelid}" == *icon* ]]; then
   sed -i "s/\(lrestart            =\).*/\1 $lrestart/" icon_master.namelist
 
 # link needed files
-  ln -sf ${icon_latbc_dir}/igaf$(date -u -d "${startdate}" +%Y%m%d%H).nc dwdFG_R13B05_DOM01.nc
-  ln -sf ${geo_dir}/icon/static/europe011_DOM01.nc
-  ln -sf ${geo_dir}/icon/static/external_parameter_icon_europe011_DOM01_tiles.nc
-  ln -sf ${geo_dir}/icon/static/bc_greenhouse_rcp45_1765-2500.nc
-  ln -sf ${geo_dir}/icon/static/ecraddata
+  ln -sf ${icon_latbc_dir}/igaf$(date -u -d "${startdate}" +%Y%m%d%H).nc ${fname_dwdFG}
+  ln -sf ${geo_dir}/icon/static/${fname_icondomain}
+  ln -sf ${geo_dir}/icon/static/${fname_iconextpar}
+  ln -sf ${geo_dir}/icon/static/${fname_iconghgforc}
+  ln -sf ${geo_dir}/icon/static/${ecraddata:-ecraddata}
 
 fi # if modelid == ICON
 
@@ -89,16 +93,20 @@ fi # if modelid == ICON
 ####################
 if [[ "${modelid}" == *clm* ]]; then
 
-# 
-  geo_dir_clm=${geo_dir}/eclm/static
-  clm_tsp=${cpltsp_atmsfc}
-  clmoutfrq=-1 # in hr
-  clmoutmfilt=24 # number of tsp in out
+  parse_config_file ${conf_file} "sim_config_clm"
+
+# set defaults
+  geo_dir_clm=${geo_dir_clm:-${geo_dir}/eclm/static}
+  clm_tsp=${clm_tsp:-${cpltsp_atmsfc}}
+  clmoutfrq=${clmoutfrq:--1} # in hr
+  clmoutmfilt=${clmoutmfilt:-24} # number of tsp in out
+  clmoutvar=${clmoutvar:-'TG'}
 #
-  domainfile_clm=domain.lnd.ICON-11_ICON-11.230302_landlake_halo.nc
-  surffile_clm=surfdata_ICON-11_hist_16pfts_Irrig_CMIP6_simyr2000_c230302_gcvurb-pfsoil_halo.nc
+#  domainfile_clm=domain.lnd.ICON-11_ICON-11.230302_landlake_halo.nc
+#  surffile_clm=surfdata_ICON-11_hist_16pfts_Irrig_CMIP6_simyr2000_c230302_gcvurb-pfsoil_halo.nc
 #  fini_clm=${rst_dir}/$(date -u -d "${datem1}" +%Y%m%d)/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-00000.nc
-  fini_clm=${simrstm1_dir}/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-$(printf "%05d" $(( $(date -d "${startdate}" +%s) % 86400 ))).nc
+#  fini_clm=${simrstm1_dir}/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-$(printf "%05d" $(( $(date -d "${startdate}" +%s) % 86400 ))).nc
+  fini_clm=${fini_clm:-${simrstm1_dir}/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-$(printf "%05d" $(( $(date -d "${startdate}" +%s) % 86400 ))).nc}
 
 
 # link executeable
@@ -144,12 +152,10 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s#__surffile_clm__#$surffile_clm#" lnd_in
   if [[ "${modelid}" != *parflow* ]]; then
     sed -i "s/__swmm__/1/" lnd_in # soilwater_movement_method
-    sed -i "s/__clmoutvar__/'TWS','H2OSOI','TSOI','TG','EFLX_LH_TOT','FSH','FSA','FSR','FIRA','Rnet','EFLX_SOIL_GRND'/" lnd_in
+    sed -i "s/__clmoutvar__/$clmoutvar/" lnd_in
   else
     sed -i "s/__swmm__/4/" lnd_in # soilwater_movement_method
-    sed -i "s/__clmoutvar__/'TWS','H2OSOI','TSOI','TG','EFLX_LH_TOT','FSH','FSA','FSR','FIRA','Rnet','EFLX_SOIL_GRND'/" lnd_in
-#    sed -i "s/__clmoutvar__/'TWS','H2OSOI','QFLX_EVAP_TOT','TG','TSOI','FSH','FSR'/" lnd_in
-#    sed -i "s/__clmoutvar__/'PFL_PSI', 'PFL_PSI_GRC', 'PFL_SOILLIQ', 'PFL_SOILLIQ_GRC', 'RAIN', 'SNOW', 'SOILPSI', 'SMP', 'QPARFLOW', 'FH2OSFC', 'FH2OSFC_NOSNOW', 'FRAC_ICEOLD', 'FSAT', 'H2OCAN', 'H2OSFC', 'H2OSNO', 'H2OSNO_ICE', 'H2OSOI', 'LIQCAN', 'LIQUID_WATER_TEMP1', 'OFFSET_SWI', 'ONSET_SWI', 'QH2OSFC', 'QH2OSFC_TO_ICE', 'QROOTSINK', 'QTOPSOIL', 'SNOLIQFL', 'SNOWLIQ', 'SNOWLIQ_ICE', 'SNOW_SINKS', 'SNOW_SOURCES', 'SNO_BW', 'SNO_BW_ICE', 'SNO_LIQH2O', 'SOILLIQ', 'SOILPSI', 'SOILWATER_10CM', 'TH2OSFC', 'TOTSOILLIQ', 'TWS', 'VEGWP', 'VOLR', 'VOLRMCH', 'WF', 'ZWT', 'ZWT_CH4_UNSAT', 'ZWT_PERCH', 'watfc', 'watsat', 'QINFL', 'Qstor', 'QOVER', 'QRUNOFF', 'EFF_POROSITY', 'TSOI', 'TSKIN', 'QDRAI'/" lnd_in
+    sed -i "s/__clmoutvar__/$clmoutvar/" lnd_in
   fi
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm_in
   sed -i "s/__simystart__/$(date -u -d "${startdate}" +%Y)/g" datm_in
@@ -170,18 +176,19 @@ fi # if modelid == CLM
 ####################
 if [[ "${modelid}" == *parflow* ]]; then
 
+  parse_config_file ${conf_file} "sim_config_parflow"
 #
-  fini_pfl=${simrstm1_dir}/parflow/${EXP_ID}.out.${dateshort}.nc
+  fini_pfl=${fini_pfl:-${simrstm1_dir}/parflow/${EXP_ID}.out.${dateshort}.nc}
 
 # link executeable
 #  ln -sf $tsmp2_install_dir/bin/parflow parflow
   cp $tsmp2_install_dir/bin/parflow parflow
 
-#  
-  parflow_tsp=$(echo "$cpltsp_sfcss / 3600" | bc -l)
-  parflow_base=0.0025
+#  set defaults
+  parflow_tsp=${parflow_tsp:-$(echo "$cpltsp_sfcss / 3600" | bc -l)}
+  parflow_base=${parflow_base:-0.0025}
 #  parflow_inifile=${frc_dir}/parflow/ini/ic_press.pfb
-  pfloutfrq=1.0
+  pfloutfrq=${pfloutfrq:-1.0}
 
 # copy namelist
   cp ${nml_dir}/parflow/ascii2pfb_slopes.tcl ascii2pfb_slopes.tcl
@@ -191,7 +198,7 @@ if [[ "${modelid}" == *parflow* ]]; then
 
 # copy sa and pfsol files
   cp ${geo_dir}/parflow/static/*sa .
-  cp ${geo_dir}/parflow/static/PfbMask4SolidFile_eCLM.pfsol PfbMask4SolidFile_eCLM.pfsol
+  cp ${geo_dir}/parflow/static/${pfl_mask} ${pfl_mask}
 
 # PFL NML
   sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" ascii2pfb_slopes.tcl
@@ -200,8 +207,8 @@ if [[ "${modelid}" == *parflow* ]]; then
   sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" ascii2pfb_SoilInd.tcl
   sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" coup_oas.tcl
   sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" coup_oas.tcl
-  sed -i "s/__ngpflx_bldsva__/444/" coup_oas.tcl
-  sed -i "s/__ngpfly_bldsva__/432/" coup_oas.tcl
+  sed -i "s/__ngpflx_bldsva__/$pfl_ngx/" coup_oas.tcl
+  sed -i "s/__ngpfly_bldsva__/$pfl_ngy/" coup_oas.tcl
   sed -i "s/__base_pfl__/$parflow_base/" coup_oas.tcl
   sed -i "s/__start_cnt_pfl__/0/" coup_oas.tcl
   sed -i "s/__stop_pfl_bldsva__/$(echo "${simlenhr} + ${parflow_base}" | bc -l)/" coup_oas.tcl
@@ -225,6 +232,8 @@ fi # if modelid == parflow
 
 if [[ "${run_oasis}" == true ]]; then
 
+  parse_config_file ${conf_file} "sim_config_oas"
+
 # copy namelist
   cp ${nml_dir}/oasis/namcouple_${modelid} namcouple
 
@@ -233,11 +242,11 @@ if [[ "${run_oasis}" == true ]]; then
   sed -i "s/__cpltsp_as__/$cpltsp_atmsfc/" namcouple
   sed -i "s/__cpltsp_ss__/$cpltsp_sfcss/" namcouple
   sed -i "s/__simlen__/$(( $simlensec + $cpltsp_atmsfc ))/" namcouple
-  sed -i "s/__icongp__/189976/" namcouple
-  sed -i "s/__eclmgpx__/189976/" namcouple
-  sed -i "s/__eclmgpy__/1/" namcouple
-  sed -i "s/__parflowgpx__/444/" namcouple
-  sed -i "s/__parflowgpy__/432/" namcouple
+  sed -i "s/__icongp__/$icon_ncg/" namcouple
+  sed -i "s/__eclmgpx__/$clm_ngx/" namcouple
+  sed -i "s/__eclmgpy__/$clm_ngy/" namcouple
+  sed -i "s/__parflowgpx__/$pfl_ngx/" namcouple
+  sed -i "s/__parflowgpy__/$pfl_ngy/" namcouple
 
 # copy remap-files
   cp ${geo_dir}/oasis/static/masks.nc .

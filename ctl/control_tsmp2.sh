@@ -8,62 +8,28 @@
 set -aeo pipefail
 
 ###########################################
+
+echo "#####"
+echo "## Start TSMP WFE"
+echo "#####"
+
+# set control directory
+ctl_dir=$(dirname $(realpath ${BASH_SOURCE:-$0}))
+
+# Import function
+source ${ctl_dir}/utils_tsmp2.sh
+
 ###
-# Settings
+# Master-settings
 ###
 
-# main settings
-MODEL_ID=ICON-eCLM-ParFlow #ParFlow #ICON-eCLM #ICON-eCLM-ParFlow #ICON
-EXP_ID="eur-11u"
-CASE_ID="" # identifier for cases
+# load master conf
+parse_config_file "master.conf"
 
-# main switches (PREprocessing, SIMulations, POSt-processing, VISualisation)
-lpre=( false false false ) # config, run, cleanup
-lsim=( true true true ) # config, run, cleanup
-lpos=( false false false ) # config, run, cleanup
-lvis=( false false false ) # config, run, cleanup
+# config file
+conf_file=${conf_file:-${ctl_dir}/expid.conf}
 
-# time information
-cpltsp_atmsfc=900 # coupling time step, atm-sfc, eCLM timestep [sec]
-cpltsp_sfcss=900 # coupling time step, sfc-ss, ParFlow timestep [sec]
-simlength="1 day" #"23 hours"
-startdate="2017-07-01T00:00Z" # ISO norm 8601
-numsimstep=1 # number of simulation steps, simulation period = numsimstep * simlength
-
-# restart
-lrestart=false
-
-# mail notification for slurm jobs
-mailtype=NONE # NONE, BEGIN, END, FAIL, REQUEUE, ALL
-mailaddress=""
-
-# user setting, leave empty for jsc machine defaults
-prevjobid="" # previous job-id, default leave empty
-npnode="" # number of cores per node
-partition="" # compute partition
-account="" # SET compute account. $BUDGET_ACCOUNTS / slts is used, if not set.
-
-# wallclock
-pre_wallclock=00:35:00
-sim_wallclock=00:25:00 # needs to be format hh:mm:ss
-pos_wallclock=00:05:00
-vis_wallclock=00:05:00
-
-# file/directory pathes
-tsmp2_dir=$TSMP2_DIR
-tsmp2_install_dir="" # leave empty to use default
-tsmp2_env="" # leave empty to use default
-
-# number of nodes per component (<comp>_node will be set to zero, if not indicated in MODEL_ID)
-ico_node=3
-clm_node=1
-pfl_node=2
-
-# DebugMode: No job submission. Just config
-debugmode=false
-
-# log job status
-joblog=true
+echo "Conf_file: ${conf_file}"
 
 ###########################################
 
@@ -71,17 +37,12 @@ joblog=true
 # Start of script
 ###
 
-echo "#####"
-echo "## Start TSMP WFE"
-echo "#####"
-
 # set modelid, caseid and expid
 modelid=$(echo ${MODEL_ID//"-"/} | tr '[:upper:]' '[:lower:]')
 if [ -n "${CASE_ID}" ]; then caseid+=${CASE_ID,,}"_"; fi
 expid=${EXP_ID,,}
 
 # set path (not run-dir)
-ctl_dir=$(dirname $(realpath ${BASH_SOURCE:-$0}))
 nml_dir=$(realpath ${ctl_dir}/../nml/)
 geo_dir=$(realpath ${ctl_dir}/../dta/geo/)
 frc_dir=$(realpath ${ctl_dir}/../dta/forcing/)
@@ -91,9 +52,6 @@ log_dir=$(realpath ${ctl_dir}/logs/)
 echo "ctl_dir: "${ctl_dir}
 echo "nml_dir: "${nml_dir}
 echo "geo_dir: "${geo_dir}
-
-# Import function
-source ${ctl_dir}/utils_tsmp2.sh
 
 # select machine defaults, if not set by user
 if [ "${SYSTEMNAME}" == "juwels" ]; then
@@ -111,7 +69,7 @@ account_def=${BUDGET_ACCOUNTS:-slts}
 check_var_def account ${account_def} "WARNING: No account is set. Using account="
 check_var_def tsmp2_dir $(realpath  ${ctl_dir}/../src/TSMP2) "Taking TSMP2 default dir at "
 check_var_def tsmp2_install_dir ${tsmp2_dir}/bin/${SYSTEMNAME^^}_${MODEL_ID} \
-              "Taking TSMP2 component binaries from default dir at"
+              "Taking TSMP2 component binaries from default dir at "
 check_var_def tsmp2_env $(find ${tsmp2_install_dir}/ -type f -name "*mpi") "Using environment file "
 
 # generic sbatch string

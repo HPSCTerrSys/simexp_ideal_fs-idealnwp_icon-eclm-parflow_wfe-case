@@ -27,10 +27,12 @@ if [[ "${modelid}" == *clm* ]]; then
 
 echo "start create clm forcing"
 
+parse_config_file ${conf_file} "pre_config_clm"
+
 # directories
-lsmforcgensrc_dir=${ctl_dir}/../src/eCLM_atmforcing/mkforcing
-eclmfrc_dir=${frc_dir}/eclm/forcing/
-cdsapi_dtadir=${ctl_dir}/../src/eCLM_atmforcing/mkforcing/cdsapidwn
+lsmforcgensrc_dir=${lsmforcgensrc_dir:-${ctl_dir}/../src/eCLM_atmforcing/mkforcing}
+eclmfrc_dir=${eclmfrc_dir:-${frc_dir}/eclm/forcing/}
+cdsapi_dtadir=${cdsapi_dtadir:-${ctl_dir}/../src/eCLM_atmforcing/mkforcing/cdsapidwn}
 
 # check if forcing files already exists
 unset listfrcfile
