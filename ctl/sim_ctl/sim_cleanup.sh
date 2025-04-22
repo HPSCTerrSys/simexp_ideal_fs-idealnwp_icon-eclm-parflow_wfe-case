@@ -85,7 +85,7 @@ if [[ "${modelid}" == *parflow* ]]; then
 
   # Restart
   mkdir -p ${simout_dir}/rst/parflow ${simrst_dir}/parflow
-  pflnout=$(printf "%05d" $(echo "$simlenhr / $pfloutfrq" | bc))
+  pflnout=$(printf "%05d" $(echo "${simlenhr} / (${pfloutfrq} * ${pfloutmfilt})" | bc))
 #  cp -v $(ls -1 ${sim_dir}/*.out.?????.nc | tail -1) ${simout_dir}/rst/parflow
   # save twice as simout is archived
   cp -v ${sim_dir}/${EXP_ID}.out.${pflnout}.nc ${simout_dir}/rst/parflow
