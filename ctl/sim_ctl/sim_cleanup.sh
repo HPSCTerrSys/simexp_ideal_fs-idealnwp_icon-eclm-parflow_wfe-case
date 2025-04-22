@@ -40,8 +40,8 @@ if [[ "${modelid}" == *icon* ]]; then
 
   # Restart
   mkdir -p ${simout_dir}/rst/icon ${simrst_dir}/icon
-  cp -v ${sim_dir}/${expid}_restart_atm_*.nc  ${simout_dir}/rst/icon
-  cp -v ${sim_dir}/${expid}_restart_atm_*.nc  ${simrst_dir}/icon # save twice as simout is archived
+  cp -v ${sim_dir}/${expid}_restart_ATMO_*.nc  ${simout_dir}/rst/icon
+  cp -v ${sim_dir}/${expid}_restart_ATMO_*.nc  ${simrst_dir}/icon # save twice as simout is archived
 
   # copy binary
   cp -v icon ${simout_dir}/bin/

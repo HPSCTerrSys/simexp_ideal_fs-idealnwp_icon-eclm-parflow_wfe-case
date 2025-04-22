@@ -53,7 +53,31 @@ if [[ "${modelid}" == *icon* ]]; then
 
   parse_config_file ${conf_file} "sim_config_icon"
 
+  # set defaults
   icon_latbc_dir=${icon_latbc_dir:-${frc_dir}/icon/latbc/$(date -u -d "${startdate}" +%Y%m)}
+  icon_restartdt=${icon_restartdt:-${simlensec}}
+  nproma=${nproma:-12}
+  icon_numioprocs=${icon_numioprocs:-1}
+  icon_numrstprocs=${icon_numrstprocs:-0}
+  icon_numprefetchproc=${icon_numprefetchproc:-1}
+  [ "${icon_numrstprocs}" -eq 0 ] && icon_rstmode="sync" || icon_rstmode="dedicated procs multifile"
+  # this method just works for simlength <= 1 month, ICON src changes needed
+  [ "${#allow_overcast_yr[@]}" -eq 0 ] && allow_overcast_yr=( 0.917 0.884 0.909 0.951 0.976 0.951 0.951 0.951 0.917 0.901 0.901 0.909 )
+  allow_overcast=${allow_overcast_yr[$((10#$(date -u -d "${startdate}" +%m) -1 ))]}
+
+  # set restart parameter
+  if [[ "$(date -u -d "${startdate}" +%s)" -eq "$(date -u -d "${inidate}" +%s)" ]]; then
+    lrestart=${lrestart:-false}
+  else
+    lrestart=${lrestart:-true}
+    if [ "${icon_numrstprocs}" -eq 0 ]; then
+      icon_rstfiles=$(ls ${simrstm1_dir}/icon/*restart*${dateymd}*.nc)
+      fini_icon=restart_ATMO_DOM01.nc
+    else
+      icon_rstfiles=$(ls ${simrstm1_dir}/icon/*restart*${dateymd}*.mfr)
+      fini_icon=multifile_restart_ATMO.mfr
+    fi
+  fi
 
 # link executeable (will be replaced with copy in production)
 #  ln -sf $tsmp2_install_dir/bin/icon icon
@@ -67,6 +91,15 @@ if [[ "${modelid}" == *icon* ]]; then
   cp ${nml_dir}/icon/map_file.fc map_file.fc
 
 # ICON NML
+  sed -i "s/__simstart__/$(date -u -d "${inidate}" +%Y-%m-%dT%H:%M:%SZ)/" icon_master.namelist
+  sed -i "s/__simend__/$(date -u -d "${datep1}" +%Y-%m-%dT%H:%M:%SZ)/" icon_master.namelist
+  sed -i "s/__dtrestart__/${icon_restartdt}/" icon_master.namelist
+  sed -i "s/\(lrestart            =\).*/\1 $lrestart/" icon_master.namelist
+  sed -i "s/__nproma__/${nproma}/" NAMELIST_icon
+#  sed -i "s/\( num_io_procs   =\).*/\1 ${icon_numioprocs}/" NAMELIST_icon
+  sed -i "s/__num_io_procs__/${icon_numioprocs}/" NAMELIST_icon
+  sed -i "s/__num_restart_procs__/${icon_numrstprocs}/" NAMELIST_icon
+  sed -i "s/__num_prefetch_proc__/${icon_numprefetchproc}/" NAMELIST_icon
   sed -i "s#__ecraddata_dir__#ecraddata#" NAMELIST_icon # needs to be short path in ICON v2.6.4
   sed -i "s/__dateymd__/${dateymd}/" NAMELIST_icon
   sed -i "s/__outdatestart__/$(date -u -d "${startdate}" +%Y-%m-%dT%H:%M:%SZ)/" NAMELIST_icon
@@ -74,13 +107,12 @@ if [[ "${modelid}" == *icon* ]]; then
   sed -i "s/__outname__/ICON_out_${expid}/" NAMELIST_icon
   sed -i "s/__restartname__/${expid}_restart_\<mtype\>_\<rsttime\>.nc/" NAMELIST_icon
   sed -i "s#__latbc_dir__#${icon_latbc_dir}#" NAMELIST_icon
-  sed -i "s/__simstart__/$(date -u -d "${startdate}" +%Y-%m-%dT%H:%M:%SZ)/" icon_master.namelist
-  sed -i "s/__simend__/$(date -u -d "${datep1}" +%Y-%m-%dT%H:%M:%SZ)/" icon_master.namelist
-  sed -i "s/__dtrestart__/${simlensec}/" icon_master.namelist
-  sed -i "s/\(lrestart            =\).*/\1 $lrestart/" icon_master.namelist
+  sed -i "s/__overcast__/${allow_overcast}/" NAMELIST_icon
+  sed -i "s/__wrstmode__/${icon_rstmode}/" NAMELIST_icon
 
 # link needed files
-  ln -sf ${icon_latbc_dir}/igaf$(date -u -d "${startdate}" +%Y%m%d%H).nc ${fname_dwdFG}
+  [[ "$lrestart" == "false" ]] && ln -sf ${icon_latbc_dir}/igaf$(date -u -d "${startdate}" +%Y%m%d%H).nc ${fname_dwdFG}
+  [[ "$lrestart" == "true" ]] && ln -sf ${icon_rstfiles} ${fini_icon}
   ln -sf ${geo_dir}/icon/static/${fname_icondomain}
   ln -sf ${geo_dir}/icon/static/${fname_iconextpar}
   ln -sf ${geo_dir}/icon/static/${fname_iconghgforc}
@@ -105,7 +137,6 @@ if [[ "${modelid}" == *clm* ]]; then
 #  domainfile_clm=domain.lnd.ICON-11_ICON-11.230302_landlake_halo.nc
 #  surffile_clm=surfdata_ICON-11_hist_16pfts_Irrig_CMIP6_simyr2000_c230302_gcvurb-pfsoil_halo.nc
 #  fini_clm=${rst_dir}/$(date -u -d "${datem1}" +%Y%m%d)/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-00000.nc
-#  fini_clm=${simrstm1_dir}/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-$(printf "%05d" $(( $(date -d "${startdate}" +%s) % 86400 ))).nc
   fini_clm=${fini_clm:-${simrstm1_dir}/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-$(printf "%05d" $(( $(date -d "${startdate}" +%s) % 86400 ))).nc}
 
 
