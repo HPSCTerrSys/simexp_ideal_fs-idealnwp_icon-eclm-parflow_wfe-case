@@ -221,7 +221,8 @@ if [[ "${modelid}" == *parflow* ]]; then
   parflow_base=${parflow_base:-0.0025}
 #  parflow_inifile=${frc_dir}/parflow/ini/ic_press.pfb
   pfloutfrq=${pfloutfrq:-1.0}
-  pfloutmfilt=${pfloutmfilt:-24}
+  pfloutmfilt=${pfloutmfilt:-1}
+  pfltsfilerst=${pfltsfilerst:-0}
 
 # copy namelist
   cp ${nml_dir}/parflow/ascii2pfb_slopes.tcl ascii2pfb_slopes.tcl
@@ -249,6 +250,7 @@ if [[ "${modelid}" == *parflow* ]]; then
   sed -i "s/__dump_pfl_interval__/$pfloutfrq/" coup_oas.tcl
   sed -i "s/__pfl_casename__/$EXP_ID/" coup_oas.tcl
   sed -i "s#__inifile__#$(basename "$fini_pfl")#" coup_oas.tcl
+  sed -i "s/__pfltsfilerst__/${pfltsfilerst}/" coup_oas.tcl
   sed -i "s/__pfloutmfilt__/${pfloutmfilt}/" coup_oas.tcl
   sed -i "s/__pfl_expid__/$EXP_ID/" slm_multiprog_mapping.conf
 
