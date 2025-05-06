@@ -138,8 +138,8 @@ if [[ "${modelid}" == *clm* ]]; then
 #  domainfile_clm=domain.lnd.ICON-11_ICON-11.230302_landlake_halo.nc
 #  surffile_clm=surfdata_ICON-11_hist_16pfts_Irrig_CMIP6_simyr2000_c230302_gcvurb-pfsoil_halo.nc
 #  fini_clm=${rst_dir}/$(date -u -d "${datem1}" +%Y%m%d)/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-00000.nc
+  topofile_clm=${topofile_clm:-topodata_0.9x1.25_USGS_070110_stream_c151201.nc}
   fini_clm=${fini_clm:-${simrstm1_dir}/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-$(printf "%05d" $(( $(date -d "${startdate}" +%s) % 86400 ))).nc}
-
 
 # link executeable
 #  ln -sf $tsmp2_install_dir/bin/eclm.exe eclm
@@ -196,7 +196,7 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" drv_flds_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" mosart_in
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm.streams.txt*
-#  sed -i "s#topodata_0.9x1.25_USGS_070110_stream_c151201.nc#topodata_0.9x1.25_zeroed.nc#" datm.streams.txt.topo.observed
+  sed -i "s#__topofile_clm__#$topofile_clm#" datm.streams.txt.topo.observed
   # forcing
   sed -i "s#__forcdir__#${frc_dir}/eclm/forcing/#" datm.streams.txt.CLMCRUNCEPv7.*
   sed -i "s#__forclist__#${forcdatelist}#" datm.streams.txt.CLMCRUNCEPv7.*
