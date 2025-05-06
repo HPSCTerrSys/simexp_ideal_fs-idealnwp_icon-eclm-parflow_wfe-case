@@ -44,6 +44,7 @@ cd ${sim_dir}
 
 parse_config_file ${conf_file} "sim_config_general"
 
+lreal=${lreal:-true}
 simrstm1_dir=${simrstm1_dir:-${rst_dir}/${caseid}$(date -u -d "${datem1}" +%Y%m%d)}
 
 ####################
@@ -87,9 +88,9 @@ if [[ "${modelid}" == *icon* ]]; then
 # copy namelist
   cp ${nml_dir}/icon/NAMELIST_icon NAMELIST_icon
   cp ${nml_dir}/icon/icon_master.namelist icon_master.namelist
-  cp ${nml_dir}/icon/map_file.ic map_file.ic
-  cp ${nml_dir}/icon/${icon_mapfile_lbc} ${icon_mapfile_lbc}
-  cp ${nml_dir}/icon/map_file.fc map_file.fc
+  [[ "$lreal" == "true" ]] && cp ${nml_dir}/icon/map_file.ic map_file.ic
+  [[ "$lreal" == "true" ]] && cp ${nml_dir}/icon/${icon_mapfile_lbc} ${icon_mapfile_lbc}
+  [[ "$lreal" == "true" ]] && cp ${nml_dir}/icon/map_file.fc map_file.fc
 
 # ICON NML
   sed -i "s/__simstart__/$(date -u -d "${inidate}" +%Y-%m-%dT%H:%M:%SZ)/" icon_master.namelist
@@ -112,7 +113,7 @@ if [[ "${modelid}" == *icon* ]]; then
   sed -i "s/__wrstmode__/${icon_rstmode}/" NAMELIST_icon
 
 # link needed files
-  [[ "$lrestart" == "false" ]] && ln -sf ${icon_latbc_dir}/igaf$(date -u -d "${startdate}" +%Y%m%d%H).nc ${fname_dwdFG}
+  [[ "$lrestart" == "false" && "$lreal" == "true" ]] && ln -sf ${icon_latbc_dir}/igaf$(date -u -d "${startdate}" +%Y%m%d%H).nc ${fname_dwdFG}
   [[ "$lrestart" == "true" ]] && ln -sf ${icon_rstfiles} ${fini_icon}
   ln -sf ${geo_dir}/icon/static/${fname_icondomain}
   ln -sf ${geo_dir}/icon/static/${fname_iconextpar}
@@ -225,20 +226,20 @@ if [[ "${modelid}" == *parflow* ]]; then
   pfltsfilerst=${pfltsfilerst:-0}
 
 # copy namelist
-  cp ${nml_dir}/parflow/ascii2pfb_slopes.tcl ascii2pfb_slopes.tcl
-  cp ${nml_dir}/parflow/ascii2pfb_SoilInd.tcl ascii2pfb_SoilInd.tcl
+  [[ "$lreal" == "true" ]] && cp ${nml_dir}/parflow/ascii2pfb_slopes.tcl ascii2pfb_slopes.tcl
+  [[ "$lreal" == "true" ]] && cp ${nml_dir}/parflow/ascii2pfb_SoilInd.tcl ascii2pfb_SoilInd.tcl
   cp ${nml_dir}/parflow/coup_oas.tcl coup_oas.tcl
   ln -s ${fini_pfl} .
 
 # copy sa and pfsol files
-  cp ${geo_dir}/parflow/static/*sa .
-  cp ${geo_dir}/parflow/static/${pfl_mask} ${pfl_mask}
+  [[ "$lreal" == "true" ]] && cp ${geo_dir}/parflow/static/*sa .
+  [[ "$lreal" == "true" ]] && cp ${geo_dir}/parflow/static/${pfl_mask} ${pfl_mask}
 
 # PFL NML
-  sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" ascii2pfb_slopes.tcl
-  sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" ascii2pfb_slopes.tcl
-  sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" ascii2pfb_SoilInd.tcl
-  sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" ascii2pfb_SoilInd.tcl
+  [[ "$lreal" == "true" ]] && sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" ascii2pfb_slopes.tcl
+  [[ "$lreal" == "true" ]] && sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" ascii2pfb_slopes.tcl
+  [[ "$lreal" == "true" ]] && sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" ascii2pfb_SoilInd.tcl
+  [[ "$lreal" == "true" ]] && sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" ascii2pfb_SoilInd.tcl
   sed -i "s/__nprocx_pfl_bldsva__/$pfl_procX/" coup_oas.tcl
   sed -i "s/__nprocy_pfl_bldsva__/$pfl_procY/" coup_oas.tcl
   sed -i "s/__ngpflx_bldsva__/$pfl_ngx/" coup_oas.tcl
@@ -256,8 +257,8 @@ if [[ "${modelid}" == *parflow* ]]; then
 
   # --- execute ParFlow distributeing tcl-scripts
   export PARFLOW_DIR=${tsmp2_install_dir}
-  tclsh ascii2pfb_slopes.tcl
-  tclsh ascii2pfb_SoilInd.tcl
+  [[ "$lreal" == "true" ]] && tclsh ascii2pfb_slopes.tcl
+  [[ "$lreal" == "true" ]] && tclsh ascii2pfb_SoilInd.tcl
 
 fi # if modelid == parflow
 
@@ -284,7 +285,7 @@ if [[ "${run_oasis}" == true ]]; then
   sed -i "s/__parflowgpy__/$pfl_ngy/" namcouple
 
 # copy remap-files
-  cp ${geo_dir}/oasis/static/masks.nc .
+  [[ "$lreal" == "true" ]] && cp ${geo_dir}/oasis/static/masks.nc .
   if [[ "${modelid}" == *parflow* ]]; then
     cp ${geo_dir}/oasis/static/rmp* .
   fi
