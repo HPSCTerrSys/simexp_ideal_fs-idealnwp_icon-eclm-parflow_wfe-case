@@ -85,11 +85,12 @@ if [[ "${modelid}" == *parflow* ]]; then
 
   # Restart
   mkdir -p ${simout_dir}/rst/parflow ${simrst_dir}/parflow
-  pflnout=$(printf "%05d" $(echo "${simlenhr} / (${pfloutfrq} * ${pfloutmfilt})" | bc))
+  pflnout=$(echo "( ((${simlenhr}/${pfloutfrq}) + ${pfloutmfilt} -1) / ${pfloutmfilt})" | bc)
+  pflnlast=$(printf "%05d" $(echo "1 + (${pflnout} -1) * ${pfloutmfilt}" | bc))
 #  cp -v $(ls -1 ${sim_dir}/*.out.?????.nc | tail -1) ${simout_dir}/rst/parflow
   # save twice as simout is archived
-  cp -v ${sim_dir}/${EXP_ID}.out.${pflnout}.nc ${simout_dir}/rst/parflow
-  cp -v ${sim_dir}/${EXP_ID}.out.${pflnout}.nc ${simrst_dir}/parflow/${EXP_ID}.out.$(date -u -d "${datep1}" +%Y%m%d%H%M%S).nc # 2nd copy
+  cp -v ${sim_dir}/${EXP_ID}.out.${pflnlast}.nc ${simout_dir}/rst/parflow
+  cp -v ${sim_dir}/${EXP_ID}.out.${pflnlast}.nc ${simrst_dir}/parflow/${EXP_ID}.out.$(date -u -d "${datep1}" +%Y%m%d%H%M%S).nc # 2nd copy
 
   # Copy binary
   cp -v parflow ${simout_dir}/bin/

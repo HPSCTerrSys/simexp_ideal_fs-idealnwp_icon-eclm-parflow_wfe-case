@@ -60,6 +60,7 @@ if [[ "${modelid}" == *icon* ]]; then
   icon_numioprocs=${icon_numioprocs:-1}
   icon_numrstprocs=${icon_numrstprocs:-0}
   icon_numprefetchproc=${icon_numprefetchproc:-1}
+  icon_mapfile_lbc=${icon_mapfile_lbc:-dict.latbc}
   [ "${icon_numrstprocs}" -eq 0 ] && icon_rstmode="sync" || icon_rstmode="dedicated procs multifile"
   # this method just works for simlength <= 1 month, ICON src changes needed
   [ "${#allow_overcast_yr[@]}" -eq 0 ] && allow_overcast_yr=( 0.917 0.884 0.909 0.951 0.976 0.951 0.951 0.951 0.917 0.901 0.901 0.909 )
@@ -87,7 +88,7 @@ if [[ "${modelid}" == *icon* ]]; then
   cp ${nml_dir}/icon/NAMELIST_icon NAMELIST_icon
   cp ${nml_dir}/icon/icon_master.namelist icon_master.namelist
   cp ${nml_dir}/icon/map_file.ic map_file.ic
-  cp ${nml_dir}/icon/map_file.lbc map_file.lbc
+  cp ${nml_dir}/icon/${icon_mapfile_lbc} ${icon_mapfile_lbc}
   cp ${nml_dir}/icon/map_file.fc map_file.fc
 
 # ICON NML
@@ -220,7 +221,8 @@ if [[ "${modelid}" == *parflow* ]]; then
   parflow_base=${parflow_base:-0.0025}
 #  parflow_inifile=${frc_dir}/parflow/ini/ic_press.pfb
   pfloutfrq=${pfloutfrq:-1.0}
-  pfloutmfilt=${pfloutmfilt:-24}
+  pfloutmfilt=${pfloutmfilt:-1}
+  pfltsfilerst=${pfltsfilerst:-0}
 
 # copy namelist
   cp ${nml_dir}/parflow/ascii2pfb_slopes.tcl ascii2pfb_slopes.tcl
@@ -248,6 +250,7 @@ if [[ "${modelid}" == *parflow* ]]; then
   sed -i "s/__dump_pfl_interval__/$pfloutfrq/" coup_oas.tcl
   sed -i "s/__pfl_casename__/$EXP_ID/" coup_oas.tcl
   sed -i "s#__inifile__#$(basename "$fini_pfl")#" coup_oas.tcl
+  sed -i "s/__pfltsfilerst__/${pfltsfilerst}/" coup_oas.tcl
   sed -i "s/__pfloutmfilt__/${pfloutmfilt}/" coup_oas.tcl
   sed -i "s/__pfl_expid__/$EXP_ID/" slm_multiprog_mapping.conf
 
