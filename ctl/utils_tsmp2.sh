@@ -17,8 +17,13 @@ ico_proc=$( printf %.0f $(echo "$ico_node * $npnode" | bc -l))
 clm_proc=$( printf %.0f $(echo "$clm_node * $npnode" | bc -l))
 pfl_proc_tmp=$( printf %.0f $(echo "$pfl_node * $npnode" | bc -l))
 pfl_proc_sqrt=$(echo "sqrt($pfl_proc_tmp)" | bc -l)
-pfl_procY=$((${pfl_proc_sqrt%.*} + (2 - ${pfl_proc_sqrt%.*} % 2))) # go to next num of 2
-pfl_procX=$(($pfl_proc_tmp/$pfl_procY))
+if [[ $pfl_proc_sqrt =~ \.[0-9]*[1-9] ]]; then
+   pfl_procY=$((${pfl_proc_sqrt%.*} + (2 - ${pfl_proc_sqrt%.*} % 2))) # go to next num of 2
+   pfl_procX=$(($pfl_proc_tmp/$pfl_procY))
+else
+   pfl_procY=${pfl_proc_sqrt%.*}
+   pfl_procX=${pfl_proc_sqrt%.*}
+fi
 pfl_proc=$(($pfl_procY*$pfl_procX))
 unset pfl_proc_tmp pfl_proc_sqrt
 
