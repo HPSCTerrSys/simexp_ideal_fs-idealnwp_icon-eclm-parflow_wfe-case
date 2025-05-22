@@ -10,10 +10,12 @@ git rm run/.gitkeep
 ln -snf $scratch_dir/run run
 ```
 
+The configuration of the simulation is managed by two shell-based configure files besides the git submodules. `master.conf` for generic setting such as simulation time or model-id and `expid.conf` for doing component specific settings.
+
 Adapt resources and time in the setup-script.
 ``` bash
 cd ${wfe_dir}/ctl
-vi control_tsmp2.sh
+vi master.conf
 ```
 
 Start simulation

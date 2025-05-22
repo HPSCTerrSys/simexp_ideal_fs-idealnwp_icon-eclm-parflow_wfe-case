@@ -17,8 +17,13 @@ ico_proc=$( printf %.0f $(echo "$ico_node * $npnode" | bc -l))
 clm_proc=$( printf %.0f $(echo "$clm_node * $npnode" | bc -l))
 pfl_proc_tmp=$( printf %.0f $(echo "$pfl_node * $npnode" | bc -l))
 pfl_proc_sqrt=$(echo "sqrt($pfl_proc_tmp)" | bc -l)
-pfl_procY=$((${pfl_proc_sqrt%.*} + (2 - ${pfl_proc_sqrt%.*} % 2))) # go to next num of 2
-pfl_procX=$(($pfl_proc_tmp/$pfl_procY))
+if [[ $pfl_proc_sqrt =~ \.[0-9]*[1-9] ]]; then
+   pfl_procY=$((${pfl_proc_sqrt%.*} + (2 - ${pfl_proc_sqrt%.*} % 2))) # go to next num of 2
+   pfl_procX=$(($pfl_proc_tmp/$pfl_procY))
+else
+   pfl_procY=${pfl_proc_sqrt%.*}
+   pfl_procX=${pfl_proc_sqrt%.*}
+fi
 pfl_proc=$(($pfl_procY*$pfl_procX))
 unset pfl_proc_tmp pfl_proc_sqrt
 
@@ -90,7 +95,7 @@ check_var_def() {
 logging_job_status(){
   local step="$1"
 
-  if [ "$joblog" = true ]; then
+  if [ "$joblog" = true ] && [ "$debugmode" != true ]; then
     job_id=$SLURM_JOB_ID
     job_state=$(scontrol show job $job_id | grep "JobState=" | cut -d= -f2 | cut -d' ' -f1)
     printf "%10s %8s %3s %15s %14s %10s %10s %14s %8s\n" "${expid}" "${caseid}" "${step}" "${modelid}" \
