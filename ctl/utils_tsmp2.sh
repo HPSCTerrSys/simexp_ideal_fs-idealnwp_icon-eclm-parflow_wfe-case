@@ -95,7 +95,7 @@ check_var_def() {
 logging_job_status(){
   local step="$1"
 
-  if [ "$joblog" = true ]; then
+  if [ "$joblog" = true ] && [ "$debugmode" != true ]; then
     job_id=$SLURM_JOB_ID
     job_state=$(scontrol show job $job_id | grep "JobState=" | cut -d= -f2 | cut -d' ' -f1)
     printf "%10s %8s %3s %15s %14s %10s %10s %14s %8s\n" "${expid}" "${caseid}" "${step}" "${modelid}" \
