@@ -141,6 +141,7 @@ if [[ "${modelid}" == *clm* ]]; then
 #  fini_clm=${rst_dir}/$(date -u -d "${datem1}" +%Y%m%d)/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-00000.nc
   topofile_clm=${topofile_clm:-topodata_0.9x1.25_USGS_070110_stream_c151201.nc}
   fini_clm=${fini_clm:-${simrstm1_dir}/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-$(printf "%05d" $(( $(date -d "${startdate}" +%s) % 86400 ))).nc}
+  clm_frc_dir=${clm_frc_dir:-${frc_dir}/eclm/forcing/}
 
 # link executeable
 #  ln -sf $tsmp2_install_dir/bin/eclm.exe eclm
@@ -199,7 +200,7 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm.streams.txt*
   sed -i "s#__topofile_clm__#$topofile_clm#" datm.streams.txt.topo.observed
   # forcing
-  sed -i "s#__forcdir__#${frc_dir}/eclm/forcing/#" datm.streams.txt.CLMCRUNCEPv7.*
+  sed -i "s#__forcdir__#${clm_frc_dir}#" datm.streams.txt.CLMCRUNCEPv7.*
   sed -i "s#__forclist__#${forcdatelist}#" datm.streams.txt.CLMCRUNCEPv7.*
   sed -i "s#__domainfile_clm__#$domainfile_clm#" datm.streams.txt.CLMCRUNCEPv7.*
 fi # if modelid == CLM
