@@ -61,6 +61,7 @@ if [[ "${modelid}" == *icon* ]]; then
   icon_numioprocs=${icon_numioprocs:-1}
   icon_numrstprocs=${icon_numrstprocs:-0}
   icon_numprefetchproc=${icon_numprefetchproc:-1}
+  domainfile_icon=${domainfile_icon:-europe011_DOM01.nc}
   icon_mapfile_lbc=${icon_mapfile_lbc:-dict.latbc}
   [ "${icon_numrstprocs}" -eq 0 ] && icon_rstmode="sync" || icon_rstmode="dedicated procs multifile"
   # this method just works for simlength <= 1 month, ICON src changes needed
@@ -102,6 +103,7 @@ if [[ "${modelid}" == *icon* ]]; then
   sed -i "s/__num_io_procs__/${icon_numioprocs}/" NAMELIST_icon
   sed -i "s/__num_restart_procs__/${icon_numrstprocs}/" NAMELIST_icon
   sed -i "s/__num_prefetch_proc__/${icon_numprefetchproc}/" NAMELIST_icon
+  sed -i "s#__domainfile_icon__#${domainfile_icon}#" NAMELIST_icon
   sed -i "s#__ecraddata_dir__#ecraddata#" NAMELIST_icon # needs to be short path in ICON v2.6.4
   sed -i "s/__dateymd__/${dateymd}/" NAMELIST_icon
   sed -i "s/__outdatestart__/$(date -u -d "${startdate}" +%Y-%m-%dT%H:%M:%SZ)/" NAMELIST_icon
