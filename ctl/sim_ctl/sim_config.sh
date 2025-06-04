@@ -273,6 +273,9 @@ if [[ "${run_oasis}" == true ]]; then
 
   parse_config_file ${conf_file} "sim_config_oas"
 
+# set defaults
+  geo_dir_oas=${geo_dir_oas:-${geo_dir}/oasis/static}
+
 # copy namelist
   cp ${nml_dir}/oasis/namcouple_${modelid} namcouple
 
@@ -288,9 +291,9 @@ if [[ "${run_oasis}" == true ]]; then
   sed -i "s/__parflowgpy__/$pfl_ngy/" namcouple
 
 # copy remap-files
-  [[ "$lreal" == "true" ]] && cp ${geo_dir}/oasis/static/masks.nc .
+  [[ "$lreal" == "true" ]] && cp ${geo_dir_oas}/masks.nc .
   if [[ "${modelid}" == *parflow* ]]; then
-    cp ${geo_dir}/oasis/static/rmp* .
+    cp ${geo_dir_oas}/rmp* .
   fi
 
 fi # if modelid == oasis
