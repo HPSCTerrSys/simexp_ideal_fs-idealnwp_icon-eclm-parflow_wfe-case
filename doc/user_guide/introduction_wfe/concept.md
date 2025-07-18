@@ -1,3 +1,13 @@
 # WFE concept
 
-to be filled
+## Workflow Engine as the skeleton
+The workflow engine functions as the skeletal framework that holds the entire system together. Much like a human skeleton provides structure and support for bodily functions, the workflow engine organizes and orchestrates the various components and configuration involved in prforming and anaylsing the simulation. It ensures that tasks, tools, and set-ups are not only available but interconnected in a coherent, reproduceable and maintainable structure. By providing this underlying architecture, the workflow engine enables a convenient and reproduceable way to perform simulations, making it central to the platform’s operation.
+
+## ... is not functional in itself
+While the workflow engine is essential to TSMP2, it is not independently functional. On its own, it neither performs computations nor manages software artifacts. Instead, it acts as an enabler, delegating actual tasks to specialized modules and external services. Think of it as a conductor of an orchestra—it doesn't produce music itself but ensures each instrument plays its part at the right time. The engine relies entirely on the surrounding source code, namelist, static fields aso fulfill real work.
+
+## “Knows” where to set the parts
+What makes the workflow engine in TSMP2 particularly powerful is its embedded knowledge of the state of all . This is not a matter of static configuration; it involves dynamic, rule-based decisions that map incoming tasks to appropriate handlers, resources, and services based on context. Whether it’s orchestrating a build pipeline, triggering an automated test suite, or managing artifact promotion, the engine determines the correct placement and timing of each activity. This contextual awareness transforms a potentially chaotic set of tools into a streamlined, coordinated process.
+
+## Git submodules make it complete
+In the context of the TSMP2 workflow engine, Git submodules play a crucial role in making the system complete by enabling modular integration of external or shared components directly into the execution environment. Since the workflow engine itself acts as an orchestrator rather than a functional unit, it depends heavily on well-defined, version-controlled tools and configurations. By using Git submodules, TSMP2 can include specific toolchains, templates, or environment definitions as part of a workflow without duplicating code or compromising maintainability. This ensures that each workflow step uses the correct, consistent version of its dependencies, improving reproducibility and reducing integration overhead. The engine “knows” where and how to place these submodules within the runtime, aligning them with the correct parts of the execution graph, thereby completing the workflow setup with precision and modular clarity.
