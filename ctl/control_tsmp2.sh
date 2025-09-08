@@ -57,9 +57,12 @@ echo "geo_dir: "${geo_dir}
 if [ "${SYSTEMNAME}" == "juwels" ]; then
 check_var_def npnode 48 "Taking user setting for npnode "
 check_var_def partition batch "Taking user setting and partition "
-elif [ "${SYSTEMNAME}" == "jurecadc" ] || [ "${SYSTEMNAME}" == "jusuf" ]; then
+elif [ "${SYSTEMNAME}" == "jurecadc" ]; then
 check_var_def npnode 128 "Taking user setting for npnode "
 check_var_def partition dc-cpu "Taking user setting and partition "
+elif [ "${SYSTEMNAME}" == "jusuf" ]; then
+check_var_def npnode 128 "Taking user setting for npnode "
+check_var_def partition batch "Taking user setting and partition "
 else
 if ( [ -z $npnode] | [ -z $partition ] ); then
 echo "No npnode and/or partition for machine '$SYSTEMNAME'. Valid machine defaults for juwels/jurecadc/jusuf."
