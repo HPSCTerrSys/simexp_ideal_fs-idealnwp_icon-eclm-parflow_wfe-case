@@ -80,7 +80,8 @@ jobgenstring="--export=ALL \
               --account=${account} \
               --partition=${partition} \
               --mail-type=${mailtype} \
-              --mail-user=${mailaddress}"
+              --mail-user=${mailaddress} \
+              --reservation=${reservation}"
 
 # convert arrays to string for slurm job script
 lprestr="${lpre[@]}"
