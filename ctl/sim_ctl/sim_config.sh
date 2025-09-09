@@ -61,6 +61,7 @@ if [[ "${modelid}" == *icon* ]]; then
   icon_numioprocs=${icon_numioprocs:-1}
   icon_numrstprocs=${icon_numrstprocs:-0}
   icon_numprefetchproc=${icon_numprefetchproc:-1}
+  domainfile_icon=${domainfile_icon:-europe011_DOM01.nc}
   icon_mapfile_lbc=${icon_mapfile_lbc:-dict.latbc}
   [ "${icon_numrstprocs}" -eq 0 ] && icon_rstmode="sync" || icon_rstmode="dedicated procs multifile"
   # this method just works for simlength <= 1 month, ICON src changes needed
@@ -102,6 +103,7 @@ if [[ "${modelid}" == *icon* ]]; then
   sed -i "s/__num_io_procs__/${icon_numioprocs}/" NAMELIST_icon
   sed -i "s/__num_restart_procs__/${icon_numrstprocs}/" NAMELIST_icon
   sed -i "s/__num_prefetch_proc__/${icon_numprefetchproc}/" NAMELIST_icon
+  sed -i "s#__domainfile_icon__#${domainfile_icon}#" NAMELIST_icon
   sed -i "s#__ecraddata_dir__#ecraddata#" NAMELIST_icon # needs to be short path in ICON v2.6.4
   sed -i "s/__dateymd__/${dateymd}/" NAMELIST_icon
   sed -i "s/__outdatestart__/$(date -u -d "${startdate}" +%Y-%m-%dT%H:%M:%SZ)/" NAMELIST_icon
@@ -141,6 +143,7 @@ if [[ "${modelid}" == *clm* ]]; then
 #  fini_clm=${rst_dir}/$(date -u -d "${datem1}" +%Y%m%d)/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-00000.nc
   topofile_clm=${topofile_clm:-topodata_0.9x1.25_USGS_070110_stream_c151201.nc}
   fini_clm=${fini_clm:-${simrstm1_dir}/eclm/eCLM_eur-11u.clm2.r.$(date -u -d "${startdate}" +%Y-%m-%d)-$(printf "%05d" $(( $(date -d "${startdate}" +%s) % 86400 ))).nc}
+  clm_frc_dir=${clm_frc_dir:-${frc_dir}/eclm/forcing/}
 
 # link executeable
 #  ln -sf $tsmp2_install_dir/bin/eclm.exe eclm
@@ -199,7 +202,7 @@ if [[ "${modelid}" == *clm* ]]; then
   sed -i "s#__geo_dir_clm__#$geo_dir_clm#" datm.streams.txt*
   sed -i "s#__topofile_clm__#$topofile_clm#" datm.streams.txt.topo.observed
   # forcing
-  sed -i "s#__forcdir__#${frc_dir}/eclm/forcing/#" datm.streams.txt.CLMCRUNCEPv7.*
+  sed -i "s#__forcdir__#${clm_frc_dir}#" datm.streams.txt.CLMCRUNCEPv7.*
   sed -i "s#__forclist__#${forcdatelist}#" datm.streams.txt.CLMCRUNCEPv7.*
   sed -i "s#__domainfile_clm__#$domainfile_clm#" datm.streams.txt.CLMCRUNCEPv7.*
 fi # if modelid == CLM
@@ -270,6 +273,9 @@ if [[ "${run_oasis}" == true ]]; then
 
   parse_config_file ${conf_file} "sim_config_oas"
 
+# set defaults
+  geo_dir_oas=${geo_dir_oas:-${geo_dir}/oasis/static}
+
 # copy namelist
   cp ${nml_dir}/oasis/namcouple_${modelid} namcouple
 
@@ -285,9 +291,9 @@ if [[ "${run_oasis}" == true ]]; then
   sed -i "s/__parflowgpy__/$pfl_ngy/" namcouple
 
 # copy remap-files
-  [[ "$lreal" == "true" ]] && cp ${geo_dir}/oasis/static/masks.nc .
+  [[ "$lreal" == "true" ]] && cp ${geo_dir_oas}/masks.nc .
   if [[ "${modelid}" == *parflow* ]]; then
-    cp ${geo_dir}/oasis/static/rmp* .
+    cp ${geo_dir_oas}/rmp* .
   fi
 
 fi # if modelid == oasis
